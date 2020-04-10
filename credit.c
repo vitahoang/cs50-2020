@@ -18,10 +18,24 @@ int* Long2Array (long n, int c)
 int CheckLuhn (int* a, int c)
 {
     int sum = 0;
-    for (int loop = 0; (loop) < c; loop+=2)
-        sum = sum + a[loop]*2;
-    for (int loop = 1; (loop) < c; loop+=2)
-        sum = sum + a[loop];
+    for (int loop = (c-1); loop >= 0; loop-=2)
+        {
+            sum = sum + a[loop];
+        }
+    for (int loop = (c-2); loop >= 0; loop-=2)
+        {
+            if (a[loop] > 4)
+            {
+                int x = a[loop]*2;
+                while (x != 0)
+                {
+                    sum = sum + x%10;
+                    x /= 10;
+                }
+            } else {
+                sum = sum + (a[loop]*2);
+            }
+        }
     return sum;
 }
 
@@ -43,51 +57,43 @@ int main(void)
             {
                 if (card_array[1] == 4 || card_array[1] == 7)
                 {
-                    printf("MasterCard\n");
-                    exit(0);
+                    printf("AMEX\n");
                 }
                 else
                 {
                     printf("INVALID\n");
-                    exit(0);
                 }
             }
             else if (card_l == 13)
             {
                 if (card_array[0] == 4)
                 {
-                    printf("Visa\n");
-                    exit(0);
+                    printf("VISA\n");
                 }
                 else
                 {
                     printf("INVALID\n");
-                    exit(0);
                 }
             }
             else
             {
                 if (card_array[0] == 4)
                 {
-                    printf("Visa\n");
-                    exit(0);
+                    printf("VISA\n");
                 }
                 else if (card_array[0] == 5)
                 {
-                    switch(card_array[1]){
-                        case 1:
-                        case 2:
-                        case 3:
-                        case 4:
-                        case 5:
-                            printf("MasterCard\n");
-                            exit(0);
-                    }
+                    if (card_array[1] > 0 && card_array[1] < 6)
+                    {
+                            printf("MASTERCARD\n");
+                    }else {
+                        printf("INVALID\n");
+                    } 
+
                 }
                 else
                 {
                     printf("INVALID\n");
-                    exit(0);
                 }
             }
         } else
