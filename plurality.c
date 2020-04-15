@@ -10,8 +10,7 @@ typedef struct candidate
 {
     string name;
     int votes;
-}
-candidate;
+} candidate;
 
 // Array of candidates
 candidate candidates[MAX];
@@ -44,29 +43,18 @@ int main(int argc, string argv[])
         candidates[i].name = argv[i + 1];
         candidates[i].votes = 0;
     }
-    for (int i = 0; i < candidate_count; i++)
-    {
-        printf("%s %i\n", candidates[i].name, candidates[i].votes);
-    }
-
     int voter_count = get_int("Number of voters: ");
 
     // Loop over all voters
     for (int i = 0; i < voter_count; i++)
     {
         string name = get_string("Vote: ");
-        for (int x = 0; x < strlen(name); x++)
-        {
-            printf("%c\n", name[x]);
-        }
-        vote(name);
         // Check for invalid vote
         if (!vote(name))
         {
             printf("Invalid vote.\n");
         }
     }
-
     // Display winner of election
     print_winner();
 }
@@ -74,18 +62,15 @@ int main(int argc, string argv[])
 // Update vote totals given a new vote
 bool vote(string name)
 {
-    bool a;
-    for (int i=0; i < MAX; i++)
+    for (int i = 0; i < candidate_count; i++)
     {
-        if (candidates[i].name == name)
+        if (strcmp(candidates[i].name, name) == 0)
         {
             candidates[i].votes++;
-            a = true;
-            break;
+            return true;
         }
-        else a = false;
     }
-    return a;
+    return false;
 }
 
 // Print the winner (or winners) of the election
@@ -94,13 +79,14 @@ void print_winner(void)
     string winner_name[MAX];
     winner_name[0] = candidates[0].name;
     int votes_max = candidates[0].votes, pcount = 0;
-    for (int i=1; i < MAX; i++)
+    for (int i = 1; i < candidate_count; i++)
     {
         if (votes_max < candidates[i].votes)
         {
             votes_max = candidates[i].votes;
             pcount = 0;
             winner_name[0] = candidates[i].name;
+            continue;
         }
         if (votes_max == candidates[i].votes)
         {
@@ -108,10 +94,9 @@ void print_winner(void)
             winner_name[pcount] = candidates[i].name;
         }
     }
-    for (int i=0; i <= pcount; i++)
+    for (int i = 0; i <= pcount; i++)
     {
-        printf("%s\n",winner_name[i]);
+        printf("%s\n", winner_name[i]);
     }
     return;
 }
-

@@ -4,7 +4,7 @@
 int main(void)
 {
     int height, lineno;
-    
+
     do
     {
         height = get_int("How hight do you want Mario to jump through?\n");
@@ -17,7 +17,7 @@ int main(void)
         {
             putchar(' ');
         }
-        
+
         for (column = 0; column < lineno; column++)
         {
             putchar('#');
