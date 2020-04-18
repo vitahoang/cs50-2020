@@ -1,0 +1,21 @@
+declare private key
+get public key
+parse the key to an array
+struct keypair
+{
+    key
+    value
+} combine
+combine public_key and private_key to make keypair (upperpair and lowerpair)
+    for i in key
+        if i is upper letter
+            key = i
+            value = i 
+
+get plaintext
+convert plaintext to cyphertext
+    for i in plaintext, i < len plaintext, i++:
+        i >64 || i < 91 
+            for i in unperpair, i < keylength, i++
+                 if upperpair[i] 
+print cyphertext

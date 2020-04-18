@@ -55,3 +55,8 @@ dkms.conf
 launch.json
 tasks.json
 settings.json
+
+#test file
+test
+test.c
+pseudo.txt
