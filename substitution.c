@@ -59,7 +59,7 @@ int main(int argc, string argv[])
     // Get plaintext
     plaintext = get_string("plaintext: ");
     ciphertext = (string)malloc(sizeof(plaintext));
-    for(int i=0; i < strlen(ciphertext); i++)
+    for (int i = 0; i < strlen(ciphertext); i++)
     {
         printf("ciphertext no.%i: %c\n", i, ciphertext[i]);
     }
@@ -68,11 +68,10 @@ int main(int argc, string argv[])
     printf("ciphertext: %s\n", ciphertext);
 
     puts("-----------");
-    for(int i=0; i < strlen(ciphertext); i++)
+    for (int i = 0; i < strlen(ciphertext); i++)
     {
         printf("ciphertext no.%i: %c\n", i, ciphertext[i]);
     }
-
 }
 
 /* function declarations */
@@ -82,32 +81,32 @@ void *combine(string key)
     // ptkey = keypair;
     for (int i = 0; i < KEYLENGTH; i++)
     {
-        for (int j = 0; j < KEYLENGTH*2; j++)
+        for (int j = 0; j < KEYLENGTH * 2; j++)
         {
             if (key[i] == keypair[j].key)
             {
-                exit(0);
+                exit(1);
             }
-            
         }
-        
+
         switch (key[i])
         {
-        // key character is uppercase
-        case 65 ... 90:
-            keypair[i].key = key[i];
-            keypair[i].value = private_key[i] - 32;
-            keypair[i + 26].key = key[i] + 32;
-            keypair[i + 26].value = private_key[i];
-            break;
-        // key character is lowercase
-        case 97 ... 122:
-            keypair[i + 26].key = key[i];
-            keypair[i + 26].value = private_key[i];
-            keypair[i].key = key[i] - 32;
-            keypair[i].value = private_key[i] - 32;
-            break;
-        default : exit(0);
+            // key character is uppercase
+            case 65 ... 90:
+                keypair[i].key = key[i];
+                keypair[i].value = private_key[i] - 32;
+                keypair[i + 26].key = key[i] + 32;
+                keypair[i + 26].value = private_key[i];
+                break;
+            // key character is lowercase
+            case 97 ... 122:
+                keypair[i + 26].key = key[i];
+                keypair[i + 26].value = private_key[i];
+                keypair[i].key = key[i] - 32;
+                keypair[i].value = private_key[i] - 32;
+                break;
+            default:
+                exit(1);
         }
     }
     return 0;
@@ -118,27 +117,27 @@ void encrypt(string a)
     for (int i = 0; i < strlen(a); i++)
         switch (a[i])
         {
-        case 65 ... 90:
-            for (int j = 0; j < 26; j++)
-            {
-                if (a[i] == keypair[j].value)
+            case 65 ... 90:
+                for (int j = 0; j < 26; j++)
                 {
-                    ciphertext[i] = keypair[j].key;
-                    break;
+                    if (a[i] == keypair[j].value)
+                    {
+                        ciphertext[i] = keypair[j].key;
+                        break;
+                    }
                 }
-            }
-            break;
-        case 97 ... 122:
-            for (int j = 26; j < 52; j++)
-            {
-                if (a[i] == keypair[j].value)
+                break;
+            case 97 ... 122:
+                for (int j = 26; j < 52; j++)
                 {
-                    ciphertext[i] = keypair[j].key;
-                    break;
+                    if (a[i] == keypair[j].value)
+                    {
+                        ciphertext[i] = keypair[j].key;
+                        break;
+                    }
                 }
-            }
-            break;
-        default:
-            ciphertext[i] = a[i];
+                break;
+            default:
+                ciphertext[i] = a[i];
         }
 }
