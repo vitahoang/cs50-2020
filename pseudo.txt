@@ -1,21 +1,16 @@
-declare private key
-get public key
-parse the key to an array
-struct keypair
-{
-    key
-    value
-} combine
-combine public_key and private_key to make keypair (upperpair and lowerpair)
-    for i in key
-        if i is upper letter
-            key = i
-            value = i 
+declare max_voter, max_candidates
+declare preference table
+struct candidate 
+    name
+    voters
+    emiminated
+declare voter_count; candidate_count
+struct an candidates[max_candidates]
+get candidate name then put it to the struct candidate
+get the number of voters then put it to voter voter_count
+get vote list of each voter
+    for i < voter_count:
+        for j < candidate_count
+            string name = get_string ("Rank i%, j + 1)
+            
 
-get plaintext
-convert plaintext to cyphertext
-    for i in plaintext, i < len plaintext, i++:
-        i >64 || i < 91 
-            for i in unperpair, i < keylength, i++
-                 if upperpair[i] 
-print cyphertext
