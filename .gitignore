@@ -51,12 +51,6 @@ Module.symvers
 Mkfile.old
 dkms.conf
 
-#vscode 
-.vscode
-launch.json
-tasks.json
-settings.json
-
 #test file
 test
 test.c
