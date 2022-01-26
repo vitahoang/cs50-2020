@@ -3,29 +3,30 @@
 
 int main(void)
 {
-    int height, lineno;
+    int height, pyramid_level;
 
     do
     {
-        height = get_int("How hight do you want Mario to jump through?\n");
-    } while (height < 1 || height > 8);
+        height = get_int("Height: ");
+    }
+    while (height < 1 || height > 8);
 
-    for (lineno = 1; lineno <= height; lineno++)
+    for (pyramid_level = 1; pyramid_level <= height; pyramid_level++)
     {
         int column;
-        for (column = height - lineno; column > 0; --column)
+        for (column = height - pyramid_level; column > 0; --column)
         {
             putchar(' ');
         }
 
-        for (column = 0; column < lineno; column++)
+        for (column = 0; column < pyramid_level; column++)
         {
             putchar('#');
         }
 
         printf("  ");
 
-        for (column = 0; column < lineno; column++)
+        for (column = 0; column < pyramid_level; column++)
         {
             putchar('#');
         }
