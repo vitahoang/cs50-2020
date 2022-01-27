@@ -8,19 +8,19 @@
 #define KEYLENGTH 26
 
 /* typedefs */
-typedef struct pairthekey
+typedef struct KeyPair
 {
-    char key, value;
+    char cypher, plain;
 } pair;
 
 /* global variable declarations */
-string plaintext, ciphertext, public_key;
-string private_key = "abcdefghijklmnopqrstuvwxyz";
+string plain_text, cipher_text, input_key;
+string lowercase_key = "abcdefghijklmnopqrstuvwxyz";
 pair keypair[(KEYLENGTH * 2)];
 
 /* function prototypes */
-void encrypt(string key);
-void *combine(string);
+void encrypt(string input_key);
+void *combineKey(string);
 
 /* main.c */
 int main(int argc, string argv[])
@@ -32,112 +32,91 @@ int main(int argc, string argv[])
         return 1;
     }
 
+    // Check if the input_key contains exactly 26 characters
     if (strlen(argv[1]) < 26 || strlen(argv[1]) > 26)
     {
         printf("Key must contain 26 characters.\n");
         return 1;
     }
+    
+    input_key = argv[1];
 
-    // Parse the input to string variable
-    public_key = argv[1];
+    // Combime uppercase and lowercase characters of input_key to create a 
+    // keypair
+    combineKey(input_key);
 
-    printf("Public key: %s\n", public_key);
-    for (int i = 0; i < strlen(public_key); i++)
-    {
-        printf("Public key letter %i: %c\n", i + 1, public_key[i]);
-    }
-    puts("-----------");
+    // Get plain_text
+    plain_text = get_string("plain_text: ");
 
-    // combine to the key pair
-    combine(public_key);
-    for (int i = 0; i < KEYLENGTH * 2; i++)
-    {
-        printf("Key: %c - Value: %c\n", keypair[i].key, keypair[i].value);
-    }
-    puts("-----------");
-
-    // Get plaintext
-    plaintext = get_string("plaintext: ");
-    ciphertext = (string)malloc(sizeof(plaintext));
-    for (int i = 0; i < strlen(ciphertext); i++)
-    {
-        printf("ciphertext no.%i: %c\n", i, ciphertext[i]);
-    }
-
-    encrypt(plaintext);
-    printf("ciphertext: %s\n", ciphertext);
-
-    puts("-----------");
-    for (int i = 0; i < strlen(ciphertext); i++)
-    {
-        printf("ciphertext no.%i: %c\n", i, ciphertext[i]);
-    }
+    // Generate encrypted text 
+    cipher_text = (string)malloc(sizeof(plain_text));
+    encrypt(plain_text);
+    printf("ciphertext: %s\n", cipher_text);
 }
 
 /* function declarations */
-void *combine(string key)
+void *combineKey(string input_key)
 {
-    // pair * ptkey;
-    // ptkey = keypair;
     for (int i = 0; i < KEYLENGTH; i++)
     {
+        // Check if any dubplicated character in the input_key
         for (int j = 0; j < KEYLENGTH * 2; j++)
         {
-            if (key[i] == keypair[j].key)
+            if (input_key[i] == keypair[j].cypher)
             {
                 exit(1);
             }
         }
 
-        switch (key[i])
+        switch (input_key[i])
         {
-            // key character is uppercase
-            case 65 ... 90:
-                keypair[i].key = key[i];
-                keypair[i].value = private_key[i] - 32;
-                keypair[i + 26].key = key[i] + 32;
-                keypair[i + 26].value = private_key[i];
-                break;
-            // key character is lowercase
-            case 97 ... 122:
-                keypair[i + 26].key = key[i];
-                keypair[i + 26].value = private_key[i];
-                keypair[i].key = key[i] - 32;
-                keypair[i].value = private_key[i] - 32;
-                break;
-            default:
-                exit(1);
+        // input_key character is uppercase
+        case 65 ... 90:
+            keypair[i].cypher = input_key[i];
+            keypair[i].plain = lowercase_key[i] - 32;
+            keypair[i + 26].cypher = input_key[i] + 32;
+            keypair[i + 26].plain = lowercase_key[i];
+            break;
+        // input_key character is lowercase
+        case 97 ... 122:
+            keypair[i + 26].cypher = input_key[i];
+            keypair[i + 26].plain = lowercase_key[i];
+            keypair[i].cypher = input_key[i] - 32;
+            keypair[i].plain = lowercase_key[i] - 32;
+            break;
+        default:
+            exit(1);
         }
     }
     return 0;
 }
 
-void encrypt(string a)
+void encrypt(string text)
 {
-    for (int i = 0; i < strlen(a); i++)
-        switch (a[i])
+    for (int i = 0; i < strlen(text); i++)
+        switch (text[i])
         {
-            case 65 ... 90:
-                for (int j = 0; j < 26; j++)
+        case 65 ... 90:
+            for (int j = 0; j < 26; j++)
+            {
+                if (text[i] == keypair[j].plain)
                 {
-                    if (a[i] == keypair[j].value)
-                    {
-                        ciphertext[i] = keypair[j].key;
-                        break;
-                    }
+                    cipher_text[i] = keypair[j].cypher;
+                    break;
                 }
-                break;
-            case 97 ... 122:
-                for (int j = 26; j < 52; j++)
+            }
+            break;
+        case 97 ... 122:
+            for (int j = 26; j < 52; j++)
+            {
+                if (text[i] == keypair[j].plain)
                 {
-                    if (a[i] == keypair[j].value)
-                    {
-                        ciphertext[i] = keypair[j].key;
-                        break;
-                    }
+                    cipher_text[i] = keypair[j].cypher;
+                    break;
                 }
-                break;
-            default:
-                ciphertext[i] = a[i];
+            }
+            break;
+        default:
+            cipher_text[i] = text[i];
         }
 }
