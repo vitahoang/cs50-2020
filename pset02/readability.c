@@ -1,70 +1,35 @@
+/* includes */
 #include <cs50.h>
 #include <stdio.h>
-#include <stdlib.h>
-#include <math.h>
 #include <string.h>
 
-typedef struct textStruct
+/* typedefs */
+typedef struct TextStruct
 {
     float sents, words, chars;
     long len;
-} StructCount;
+}textstruct;
 
-StructCount textCounter(string text)
-{
-    StructCount c;
-    c.sents = 0;
-    c.words = 1;
-    c.chars = 0;
-    c.len = strlen(text);
-    for (int i = 0; i <= c.len; i++)
-    {
-        switch (text[i])
-        {
-        case '.':
-        case '?':
-        case '!':
-            c.sents++;
-        }
-        if (text[i] == ' ')
-        {
-            c.words++;
-        }
-        switch ((int)text[i])
-        {
-        case 65 ... 90:
-        case 97 ... 122:
-            c.chars++;
-        }
-    }
-    return c;
-};
+/* function prototypes */
+textstruct textCounter(string text);
+float readLevel(textstruct c);
 
-float readLevel(StructCount c)
-{
-    float L, S, index;
-    L = c.chars / c.words * 100;
-    S = c.sents / c.words * 100;
-    index = 0.0588 * L - 0.296 * S - 15.8;
-    return index;
-}
-
+/* main.c */
 int main(void)
 {
     string text;
     do
     {
-        text = get_string("Give me your text: ");
+        text = get_string("Text: ");
     } while (strlen(text) < 1);
 
-    StructCount tc;
+    textstruct tc;
     tc = textCounter(text);
     float grade = readLevel(tc);
     if (grade < 1)
     {
         printf("Before Grade 1\n");
     }
-
     else if (grade > 16)
     {
         printf("Grade 16+\n");
@@ -73,4 +38,44 @@ int main(void)
     {
         printf("Grade %.f\n", grade);
     }
+}
+
+/* function declarations */
+textstruct textCounter(string text)
+{
+    textstruct ts;
+    ts.sents = 0;
+    ts.words = 1;
+    ts.chars = 0;
+    ts.len = strlen(text);
+    for (int i = 0; i <= ts.len; i++)
+    {
+        switch (text[i])
+        {
+        case '.':
+        case '?':
+        case '!':
+            ts.sents++;
+        }
+        if (text[i] == ' ')
+        {
+            ts.words++;
+        }
+        switch ((int)text[i])
+        {
+        case 65 ... 90:
+        case 97 ... 122:
+            ts.chars++;
+        }
+    }
+    return ts;
+};
+
+float readLevel(textstruct ts)
+{
+    float L, S, index;
+    L = ts.chars / ts.words * 100;
+    S = ts.sents / ts.words * 100;
+    index = 0.0588 * L - 0.296 * S - 15.8;
+    return index;
 }
