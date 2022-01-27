@@ -88,11 +88,8 @@ int main(void)
     else if (
         digit_long == 16 &&
         card_array[0] == 5 &&
-        (card_array[1] == 1 ||
-         card_array[1] == 2 ||
-         card_array[1] == 3 ||
-         card_array[1] == 4 ||
-         card_array[1] == 5))
+        card_array[1] > 0 &&
+        card_array[1] < 5)
     {
         printf("MASTERCARD\n");
     }
