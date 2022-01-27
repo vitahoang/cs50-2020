@@ -4,12 +4,12 @@
 #include <math.h>
 
 // Forward Declarations
-int ValidateCardLong(int digit_long);
-int *Long2Array(long card_no, int digit_long);
-int LuhnSum(int *card_no, int c);
+int validateCardLong(int digit_long);
+int *long2Array(long card_no, int digit_long);
+int luhnSum(int *card_no, int c);
 
 // Check if the digits long of the card is valid
-int ValidateCardLong(int digit_long)
+int validateCardLong(int digit_long)
 {
     if (digit_long < 13 || digit_long > 16 || digit_long == 14)
     {
@@ -20,7 +20,7 @@ int ValidateCardLong(int digit_long)
 }
 
 // Convert format of the card number from a long to an array
-int *Long2Array(long card_no, int digit_long)
+int *long2Array(long card_no, int digit_long)
 {
     int static card_array[18];
     while (card_no != 0)
@@ -33,7 +33,7 @@ int *Long2Array(long card_no, int digit_long)
 }
 
 // An algorithm invented by Hans Peter Luhn of IBM to checksum the credit card number
-int LuhnSum(int *card_no, int digit_long)
+int luhnSum(int *card_no, int digit_long)
 {
     int sum = 0;
     for (int i = digit_long - 2; i >= 0; i -= 2)
@@ -64,10 +64,10 @@ int main(void)
     long card_no = get_long("Number: ");
     int digit_long = floor(log10(card_no)) + 1;
 
-    ValidateCardLong(digit_long);
+    validateCardLong(digit_long);
     int *card_array = Long2Array(card_no, digit_long);
 
-    int sum = LuhnSum(card_array, digit_long);
+    int sum = luhnSum(card_array, digit_long);
     if (sum % 10 != 0)
     {
         printf("INVALID\n");
