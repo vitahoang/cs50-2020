@@ -8,7 +8,7 @@
 #define KEYLENGTH 26
 
 /* typedefs */
-typedef struct KeyPair
+typedef struct 
 {
     char cypher, plain;
 } pair;

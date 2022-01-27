@@ -4,7 +4,7 @@
 #include <string.h>
 
 /* typedefs */
-typedef struct TextStruct
+typedef struct 
 {
     float sents, words, chars;
     long len;
