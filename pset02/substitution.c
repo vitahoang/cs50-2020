@@ -20,7 +20,6 @@ pair keypair[(KEYLENGTH * 2)];
 
 /* function prototypes */
 void encrypt(string input_key);
-void *combineKey(string);
 
 /* main.c */
 int main(int argc, string argv[])
@@ -40,10 +39,17 @@ int main(int argc, string argv[])
     }
     
     input_key = argv[1];
-
-    // Combime uppercase and lowercase characters of input_key to create a 
-    // keypair
-    combineKey(input_key);
+    // Check if any dubplicated character in the input_key
+    for (int i = 0; i < KEYLENGTH; i++)
+    {
+        for (int j = i + 1; j < KEYLENGTH; j++)
+        {
+            if (input_key[i] == input_key[j])
+            {
+                exit(1);
+            }
+        }
+    }
 
     // Get plain_text
     plain_text = get_string("plain_text: ");
@@ -55,68 +61,18 @@ int main(int argc, string argv[])
 }
 
 /* function declarations */
-void *combineKey(string input_key)
-{
-    for (int i = 0; i < KEYLENGTH; i++)
-    {
-        // Check if any dubplicated character in the input_key
-        for (int j = 0; j < KEYLENGTH * 2; j++)
-        {
-            if (input_key[i] == keypair[j].cypher)
-            {
-                exit(1);
-            }
-        }
-
-        switch (input_key[i])
-        {
-        // input_key character is uppercase
-        case 65 ... 90:
-            keypair[i].cypher = input_key[i];
-            keypair[i].plain = lowercase_key[i] - 32;
-            keypair[i + 26].cypher = input_key[i] + 32;
-            keypair[i + 26].plain = lowercase_key[i];
-            break;
-        // input_key character is lowercase
-        case 97 ... 122:
-            keypair[i + 26].cypher = input_key[i];
-            keypair[i + 26].plain = lowercase_key[i];
-            keypair[i].cypher = input_key[i] - 32;
-            keypair[i].plain = lowercase_key[i] - 32;
-            break;
-        default:
-            exit(1);
-        }
-    }
-    return 0;
-}
-
 void encrypt(string text)
 {
     for (int i = 0; i < strlen(text); i++)
         switch (text[i])
         {
-        case 65 ... 90:
-            for (int j = 0; j < 26; j++)
-            {
-                if (text[i] == keypair[j].plain)
-                {
-                    cipher_text[i] = keypair[j].cypher;
-                    break;
-                }
-            }
-            break;
-        case 97 ... 122:
-            for (int j = 26; j < 52; j++)
-            {
-                if (text[i] == keypair[j].plain)
-                {
-                    cipher_text[i] = keypair[j].cypher;
-                    break;
-                }
-            }
-            break;
-        default:
-            cipher_text[i] = text[i];
+            case 65 ... 90:
+                cipher_text[i] = input_key[(int)text[i] - 65];
+                break;
+            case 97 ... 122:
+                cipher_text[i] = input_key[(int)text[i] - 97];
+                break;
+            default:
+                exit(1); 
         }
 }
