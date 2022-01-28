@@ -1,27 +1,27 @@
+/* includes */
 #include <cs50.h>
 #include <stdio.h>
 #include <string.h>
 
-// Max number of candidates
-#define MAX 9
+/* defines */
+#define MAXCANDIDATE 9
 
-// Candidates have name and vote count
-typedef struct candidate
+/* typedefs */
+typedef struct
 {
     string name;
     int votes;
 } candidate;
 
-// Array of candidates
-candidate candidates[MAX];
-
-// Number of candidates
+/* global variable declarations */
+candidate candidates[MAXCANDIDATE];
 int candidate_count;
 
-// Function prototypes
+/* function prototypes */
 bool vote(string name);
 void print_winner(void);
 
+/* main */
 int main(int argc, string argv[])
 {
     // Check for invalid usage
@@ -33,19 +33,21 @@ int main(int argc, string argv[])
 
     // Populate array of candidates
     candidate_count = argc - 1;
-    if (candidate_count > MAX)
+    if (candidate_count > MAXCANDIDATE)
     {
-        printf("Maximum number of candidates is %i\n", MAX);
+        printf("Maximum number of candidates is %i\n", MAXCANDIDATE);
         return 2;
     }
+
+    // Add candidates to the candidate struct
     for (int i = 0; i < candidate_count; i++)
     {
         candidates[i].name = argv[i + 1];
         candidates[i].votes = 0;
     }
-    int voter_count = get_int("Number of voters: ");
-
+    
     // Loop over all voters
+    int voter_count = get_int("Number of voters: ");
     for (int i = 0; i < voter_count; i++)
     {
         string name = get_string("Vote: ");
@@ -53,6 +55,7 @@ int main(int argc, string argv[])
         if (!vote(name))
         {
             printf("Invalid vote.\n");
+            return false;
         }
     }
     // Display winner of election
@@ -76,7 +79,7 @@ bool vote(string name)
 // Print the winner (or winners) of the election
 void print_winner(void)
 {
-    string winner_name[MAX];
+    string winner_name[MAXCANDIDATE];
     winner_name[0] = candidates[0].name;
     int votes_max = candidates[0].votes, pcount = 0;
     for (int i = 1; i < candidate_count; i++)
