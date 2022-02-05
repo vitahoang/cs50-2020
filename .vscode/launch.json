@@ -9,7 +9,7 @@
             "type": "lldb",
             "request": "launch",
             "program": "${fileDirname}/${fileBasenameNoExtension}",
-            "args": [],
+            "args": ["input.wav","output.wav","2"],
             "stopAtEntry": false,
             "cwd": "${fileDirname}",
             "environment": [],
