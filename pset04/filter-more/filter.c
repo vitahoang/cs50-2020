@@ -66,7 +66,7 @@ int main(int argc, char *argv[])
         fclose(outptr);
         fclose(inptr);
         printf("Unsupported file format.\n");
-        return 6;
+        // return 6;
     }
 
     // Get image's dimensions
