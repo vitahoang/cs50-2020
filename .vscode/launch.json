@@ -5,14 +5,46 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "clang - Debug active file",
+            "name": "clang - (r)",
             "type": "lldb",
             "request": "launch",
             "program": "${fileDirname}/${fileBasenameNoExtension}",
             "args": [
-                "-g",
+                "-r",
                 "${fileDirname}/infile/tower.bmp",
-                "${fileDirname}/outfile/tower-g.bmp"
+                "${fileDirname}/outfile/tower-r.bmp"
+            ],
+            "stopAtEntry": false,
+            "cwd": "${fileDirname}",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "lldb",
+        },
+        {
+            "name": "clang - (b)",
+            "type": "lldb",
+            "request": "launch",
+            "program": "${fileDirname}/${fileBasenameNoExtension}",
+            "args": [
+                "-b",
+                "${fileDirname}/infile/courtyard.bmp",
+                "${fileDirname}/outfile/courtyard-b.bmp"
+            ],
+            "stopAtEntry": false,
+            "cwd": "${fileDirname}",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "lldb",
+        },
+        {
+            "name": "clang - (e)",
+            "type": "lldb",
+            "request": "launch",
+            "program": "${fileDirname}/${fileBasenameNoExtension}",
+            "args": [
+                "-e",
+                "${fileDirname}/infile/tower.bmp",
+                "${fileDirname}/outfile/tower-e.bmp"
             ],
             "stopAtEntry": false,
             "cwd": "${fileDirname}",

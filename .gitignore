@@ -51,7 +51,10 @@ Module.symvers
 Mkfile.old
 dkms.conf
 
-#test file
+# Test file
 test
 test.c
 pseudo.txt
+
+# System
+.DS_Store
