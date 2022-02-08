@@ -5,7 +5,7 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "clang - (r)",
+            "name": "filter - (r)",
             "type": "lldb",
             "request": "launch",
             "program": "${fileDirname}/${fileBasenameNoExtension}",
@@ -21,7 +21,7 @@
             "MIMode": "lldb",
         },
         {
-            "name": "clang - (b)",
+            "name": "filter - (b)",
             "type": "lldb",
             "request": "launch",
             "program": "${fileDirname}/${fileBasenameNoExtension}",
@@ -37,7 +37,7 @@
             "MIMode": "lldb",
         },
         {
-            "name": "clang - (e)",
+            "name": "filter - (e)",
             "type": "lldb",
             "request": "launch",
             "program": "${fileDirname}/${fileBasenameNoExtension}",
@@ -46,6 +46,30 @@
                 "${fileDirname}/infile/tower.bmp",
                 "${fileDirname}/outfile/tower-e.bmp"
             ],
+            "stopAtEntry": false,
+            "cwd": "${fileDirname}",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "lldb",
+        },
+        {
+            "name": "test",
+            "type": "lldb",
+            "request": "launch",
+            "program": "${fileDirname}/${fileBasenameNoExtension}",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${fileDirname}",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "lldb",
+        },
+        {
+            "name": "recover",
+            "type": "lldb",
+            "request": "launch",
+            "program": "${fileDirname}/${fileBasenameNoExtension}",
+            "args": ["card.raw"],
             "stopAtEntry": false,
             "cwd": "${fileDirname}",
             "environment": [],
