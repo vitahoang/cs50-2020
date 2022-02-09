@@ -8,7 +8,7 @@ typedef unsigned char BYTE;
 int main(int argc, char *argv[])
 {
     // program must accept only one argument
-    if (argc > 2)
+    if (argc != 2)
     {
         printf("Usage: ./recover [image disk]\n");
         return 1;
