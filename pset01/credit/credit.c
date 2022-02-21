@@ -32,7 +32,8 @@ int *long2Array(long card_no, int digit_long)
     return card_array;
 }
 
-// An algorithm invented by Hans Peter Luhn of IBM to checksum the credit card number
+// An algorithm invented by Hans Peter Luhn of IBM to checksum 
+// the credit card number
 int luhnSum(int *card_no, int digit_long)
 {
     int sum = 0;
