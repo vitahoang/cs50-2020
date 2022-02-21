@@ -22,7 +22,7 @@ def main():
         print("AMEX")
     elif len(card) in (13, 16) and card[0] == 4:
         print("VISA")
-    elif len(card) == 16 and card[0] == 5 and card[1] in range(0, 5):
+    elif len(card) == 16 and card[0] == 5 and card[1] in range(1, 6):
         print("MASTERCARD")
     else:
         print("INVALID")
