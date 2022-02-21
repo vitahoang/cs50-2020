@@ -1,11 +1,13 @@
 # TODO
-import sys
+while True:
+    try:
+        h = int(input("Height: "))
+    except ValueError:
+        continue
+    if h > 0 and h < 9:
+        break
 
-if len(sys.argv) != 2:
-    sys.exit("Usage: python mario.py PYRAMIDHEIGHT")
-
-height = int(sys.argv[1])
-for i in range(height+1):
-    space = " " * (height - i)
+for i in range(1, h+1):
+    space = " " * (h - i)
     lv = "#" * i
     print(f"{space}{lv}  {lv}")
