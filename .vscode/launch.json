@@ -5,7 +5,15 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Python: Current File",
+            "name": "mario",
+            "type": "python",
+            "request": "launch",
+            "program": "${file}",
+            "args": ["4"],
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "world cup",
             "type": "python",
             "request": "launch",
             "program": "${file}",
