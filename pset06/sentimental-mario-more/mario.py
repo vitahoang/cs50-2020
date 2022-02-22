@@ -1,4 +1,3 @@
-# TODO
 while True:
     try:
         h = int(input("Height: "))
