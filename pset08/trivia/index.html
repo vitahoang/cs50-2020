@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500&display=swap" rel="stylesheet" />
+  <link href="styles.css" rel="stylesheet" />
+  <title>Trivia!</title>
+  <script>
+    function checkQ1(event) {
+      // Create the div element to display the message
+      message = document.createElement("div");
+      message.setAttribute("id", "message1");
+
+      if (event.target.innerHTML == "1 people per 6 sheep") {
+        message.appendChild(document.createTextNode("Correct!"));
+        event.target.style.backgroundColor = "green";
+      }
+      else {
+        message.appendChild(document.createTextNode("Incorrect"));
+        event.target.style.backgroundColor = "red";
+      }
+      message.appendChild(document.createElement("br"));
+
+      // show the message after the question
+      q1 = document.getElementById("q1");
+      if (document.getElementById("message1")) {
+        document.getElementById("message1").remove();
+      }
+      q1.parentNode.insertBefore(message, q1.nextSibling);
+    }
+
+    function checkQ2(event) {
+      message = document.createElement("div");
+      message.setAttribute("id", "message2");
+      inputObject = document.getElementById("answer");
+      inputObject.style.backgroundColor = "red";
+      if (inputObject.value == "Switzerland") {
+        message.appendChild(document.createTextNode("Correct!"));
+        inputObject.style.backgroundColor = "green";
+      }
+      else {
+        message.appendChild(document.createTextNode("Incorrect"));
+        inputObject.style.backgroundColor = "red";
+      }
+
+
+      // show the message after the question
+      q2 = document.getElementById("q2");
+      if (document.getElementById("message2")) {
+        document.getElementById("message2").remove();
+      }
+      q2.parentNode.insertBefore(message, q2.nextSibling);
+    }
+  </script>
+</head>
+
+<body>
+  <div class="header">
+    <h1>Trivia!</h1>
+  </div>
+
+  <div class="container">
+    <div class="section">
+      <h2>Part 1: Multiple Choice</h2>
+      <hr />
+      <!-- TODO: Add multiple choice question here -->
+      <h3 id="q1">What is the approximate ratio of people to sheep in New Zealand</h3>
+      <button type="button" onclick="checkQ1(event)">6 people per 1 sheep</button>
+      <button type="button" onclick="checkQ1(event)">3 people per 1 sheep</button>
+      <button type="button" onclick="checkQ1(event)">1 people per 1 sheep</button>
+      <button type="button" onclick="checkQ1(event)">1 people per 3 sheep</button>
+      <button type="button" onclick="checkQ1(event)">1 people per 6 sheep</button>
+    </div>
+
+    <div class="section">
+      <h2>Part 2: Free Response</h2>
+      <hr />
+      <!-- TODO: Add free response question here -->
+      <h3 id="q2">
+        In which country is it illegal to own only one guinea pig, as a lone
+        guinea pig might get lonely?
+      </h3>
+      <form>
+        <input type="text" id="answer">
+        <input type="button" value="Check Answer" onclick="checkQ2(event)">
+      </form>
+    </div>
+  </div>
+</body>
+
+</html>
