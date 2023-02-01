@@ -1,7 +1,7 @@
 #include <cs50.h>
 #include <stdio.h>
 
-int MIN_SIZE = 9;
+#define MIN_SIZE 9
 
 int main(void)
 {
