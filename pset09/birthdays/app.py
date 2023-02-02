@@ -35,5 +35,3 @@ def index():
         # TODO: Display the entries in the database on index.html
 
         return render_template("index.html")
-
-
