@@ -39,14 +39,14 @@ def after_request(response):
 @login_required
 def index():
     """Show portfolio of stocks"""
-    return apology("TODO")
+    return render_template("pages/portfolio.html")
 
 
 @app.route("/quote", methods=["GET", "POST"])
 @login_required
 def quote():
     """Get stock quote."""
-    return apology("TODO")
+    return render_template("pages/quote.html")
 
 
 @app.route("/buy", methods=["GET", "POST"])

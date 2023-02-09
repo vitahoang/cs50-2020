@@ -1,0 +1,32 @@
+{% extends 'components/layout.html' %}
+{% set title = 'Portfolio' %}
+
+{% block main %}
+<div class="py-4 container text-center align-items-center">
+    <div class="section">
+        <!-- TODO: Loop through the database entries to display them in this table -->
+        <table class="table table-hover table-dark table-borderless">
+            <thead>
+                <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">Ticker</th>
+                    <th scope="col">Position Size</th>
+                    <th scope="col">Entry Price</th>
+                    <th scope="col">Current Price</th>
+                    <th scope="col">Total Value</th>
+                    <th scope="col">Estimated P/N (%)</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for stock in portfolio %}
+                <tr>
+                    <th scope="row">{{person["id"]}}</th>
+                    <td>{{person["name"]}}</td>
+                    <td>{{person["birthday"]}}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
