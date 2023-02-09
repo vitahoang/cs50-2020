@@ -1,0 +1,25 @@
+{% block birthday_form %}
+<section class="py-4 text-center container align-items-center">
+    <div class="row pt-lg-5">
+        <h2>Add a Birthday</h2>
+    </div>
+    <form id="addBirthday" class="row text-start pt-lg-5 px-4" autocomplete="on" action="/" method="post">
+        <div class="col-md-3 pt-sm-3">
+            <label for="inputName" class="form-label">Name</label>
+            <input type="text" required class="form-control" style="width: 100%;" id="inputName" autofocus name="name">
+        </div>
+        <div class="col-md-3 pt-sm-3">
+            <label for="inputMonth" class="form-label">Month</label>
+            <input type="text" required class="form-control" style="width: 100%;" id="inputMonth" month="month">
+        </div>
+        <div class="col-md-3 pt-sm-3">
+            <label for="inputDay" class="form-label">Day</label>
+            <input type="text" required class="form-control" style="width: 100%;" id="inputDay" day="day">
+        </div>
+        <div class="col-md-3 align-self-end d-flex justify-content-end">
+            <button type="submit" class="btn btn-primary mt-4">Add a Birthday</button>
+        </div>
+    </form>
+    </div>
+</section>
+{% endblock %}
