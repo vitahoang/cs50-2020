@@ -2,7 +2,7 @@ import os
 import requests
 import urllib.parse
 
-from flask import redirect, render_template, request, session
+from flask import redirect, render_template, request, session, make_response
 from functools import wraps
 
 
@@ -18,7 +18,9 @@ def apology(message, code=400):
                          ("%", "~p"), ("#", "~h"), ("/", "~s"), ("\"", "''")]:
             s = s.replace(old, new)
         return s
-    return render_template("apology.html", top=code, bottom=escape(message)), code
+
+    return render_template("pages/apology.html", top=code,
+                           bottom=escape(message)), code
 
 
 def login_required(f):

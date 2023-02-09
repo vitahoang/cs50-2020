@@ -179,20 +179,6 @@ async = ["asgiref (>=3.2)"]
 dotenv = ["python-dotenv"]
 
 [[package]]
-name = "flask-sessions"
-version = "0.1.5"
-description = "Adds server-side session support to your Flask application"
-category = "main"
-optional = false
-python-versions = "*"
-files = [
-    {file = "Flask-Sessions-0.1.5.tar.gz", hash = "sha256:dd56d1f132715cb9fa0edbdd911ece081b4738e3ae8f39c505ee383d3f84428d"},
-]
-
-[package.dependencies]
-Flask = ">=0.8"
-
-[[package]]
 name = "greenlet"
 version = "2.0.2"
 description = "Lightweight in-process concurrent programming"
@@ -545,4 +531,4 @@ test = ["pytest (>=3.0.0)"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.11"
-content-hash = "034b76c8b69542215b035020da0116e86ae7a0568f67fd93bc4b8c7917b4b982"
+content-hash = "476f83c3cfa277795fcc4ce90f088499d4870c4ca7fdd5887710543fbb99fb03"

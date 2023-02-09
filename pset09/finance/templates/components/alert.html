@@ -1,0 +1,19 @@
+{% block alert %}
+{% with flash = get_flashed_messages(with_categories=true) %}
+{% if flash %}
+<header>
+    {% if flash[0][0] == 'success' %}
+    <div class="alert alert-success mb-0 text-center" role="alert">
+        {{ flash[0][1] }}
+    </div>
+    {% endif %}
+
+    {% if flash[0][0] == 'error' %}
+    <div class="alert alert-warning mb-0 text-center" role="alert">
+        {{ flash[0][1] }}
+    </div>
+    {% endif %}
+</header>
+{% endif %}
+{% endwith %}
+{% endblock %}
