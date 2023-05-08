@@ -6,7 +6,7 @@ from flask import Flask, flash, redirect, render_template, request, session, \
 from tempfile import mkdtemp
 from werkzeug.security import check_password_hash, generate_password_hash
 
-from helpers import apology, login_required, lookup, usd
+from helpers import apology, login_required, usd, search_ticker, get_quote
 
 # Configure application
 app = Flask(__name__)
@@ -19,7 +19,8 @@ app.jinja_env.filters["usd"] = usd
 db = SQL("sqlite:///finance.db")
 
 # Set API_KEY
-os.environ.setdefault("API_KEY", "12434")
+os.environ.setdefault("IEX_API_KEY", "sk_e1dbd11abe3344b0a0233a9ea8a4ab9b")
+os.environ.setdefault("API_KEY", "GF3Y0QEZSMFYRA0N")
 
 # Make sure API key is set
 if not os.environ.get("API_KEY"):
@@ -42,10 +43,24 @@ def index():
     return render_template("pages/portfolio.html")
 
 
-@app.route("/quote", methods=["GET", "POST"])
+@app.route("/quote", methods=["GET"])
 @login_required
 def quote():
-    """Get stock quote."""
+    """search stock quote."""
+    q = request.args.get("q")
+    scope = request.args.get("scope")
+    if q and scope == "ticker":
+        ticker_list = search_ticker(q)
+        if ticker_list:
+            return make_response(ticker_list, 200)
+        return make_response("No Match", 400)
+
+    if q and scope == "quote":
+        _quote = get_quote(q)
+        if _quote:
+            return make_response(_quote, 200)
+        return make_response("No Match", 400)
+
     return render_template("pages/quote.html")
 
 

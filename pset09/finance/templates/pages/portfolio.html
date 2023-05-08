@@ -9,23 +9,46 @@
             <thead>
                 <tr>
                     <th scope="col">#</th>
-                    <th scope="col">Ticker</th>
+                    <th scope="col">Symbol</th>
+                    <th scope="col">Name</th>
                     <th scope="col">Position Size</th>
                     <th scope="col">Entry Price</th>
                     <th scope="col">Current Price</th>
-                    <th scope="col">Total Value</th>
                     <th scope="col">Estimated P/N (%)</th>
+                    <th scope="col">Value</th>
                 </tr>
             </thead>
             <tbody>
-                {% for stock in portfolio %}
-                <tr>
-                    <th scope="row">{{person["id"]}}</th>
-                    <td>{{person["name"]}}</td>
-                    <td>{{person["birthday"]}}</td>
-                </tr>
-                {% endfor %}
+            {% for stock in portfolio %}
+            <tr>
+                <th scope="row">{{person["id"]}}</th>
+                <td>{{person["name"]}}</td>
+                <td>{{person["birthday"]}}</td>
+            </tr>
+            {% endfor %}
             </tbody>
+            <tfoot>
+            <tr>
+            <tr>
+                <th></th>
+                <th></th>
+                <th></th>
+                <th></th>
+                <th></th>
+                <th></th>
+                <th>CASH</th>
+                <th></th>
+            </tr>
+            <th></th>
+            <th></th>
+            <th></th>
+            <th></th>
+            <th></th>
+            <th></th>
+            <th>TOTAL</th>
+            <th></th>
+            </tr>
+            </tfoot>
         </table>
     </div>
 </div>

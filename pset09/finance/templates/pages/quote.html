@@ -1,15 +1,19 @@
 {% extends 'components/layout.html' %}
 {% set title = 'Quote' %}
 
+
 {% block main %}
-<div class="mx-5">
-    <input class="form-control" list="tickerList" id="tickerSearch" placeholder="Find your next 🐂 & 🧸">
+<div class="mx-5 mb-5" id="searchBox">
+    <input class="form-control" list="tickerList" id="tickerSearch" autofocus placeholder="Find your next 🐂 & 🧸">
     <datalist id="tickerList">
-        <option value="San Francisco">
-        <option value="New York">
-        <option value="Seattle">
-        <option value="Los Angeles">
-        <option value="Chicago">
+        <option value="AAPL">
+        <option value="AMZN">
+        <option value="GOOG">
+        <option value="MSFT">
+        <option value="TSLA">
     </datalist>
 </div>
+<div class="row justify-content-start mx-5 mb-5" id="card">
+</div>
+
 {% endblock %}
