@@ -1,17 +1,40 @@
 window.onload = function () {
+
   sessionStorage.clear();
   var input = document.querySelector("input");
-  input.addEventListener("input", async function () {
-    let response = await fetch("/quote?q=" + input.value + "&scope=ticker");
-    let symbols = await response.json();
-    let html = "";
-    for (let id in symbols) {
-      let symbol = String(symbols[id]["symbol"])
-        .replace("<", "Slt;")
-        .replace("&", "Samp;");
-      html += "<option>" + symbol + "</option>";
+  var typingTimer;
+
+  // setup an eventListener that only calls after finished typing
+  // https://stackoverflow.com/a/5926782 
+  input.addEventListener("keyup", async function () {
+    clearTimeout(typingTimer);
+    // delete the current error
+    if (document.getElementById("alert")) {
+      input.parentElement.removeChild(document.getElementById("alert"));
     }
-    document.querySelector("datalist").innerHTML = html;
+
+    if (input.value) {
+      typingTimer = setTimeout(async () => {
+        try {
+          // search for tickers 
+          var response = await fetch("/quote?q=" + input.value + "&scope=ticker");
+          if (response.status == 404) {
+            showMessage(input.parentElement,"Ticker not Found","danger")
+          }
+          let symbols = await response.json();
+          let html = "";
+          for (let id in symbols) {
+            let symbol = String(symbols[id]["symbol"])
+              .replace("<", "Slt;")
+              .replace("&", "Samp;");
+            html += "<option>" + symbol + "</option>";
+          }
+          document.querySelector("datalist").innerHTML = html;
+        } catch (error) {
+          console.error(error);
+        }
+      }, 400);
+    }
   });
 
   var quoteCard = `
@@ -31,6 +54,8 @@ window.onload = function () {
       </div>
     </div>
   `;
+
+  // enter to get ticker's info
   input.addEventListener("keypress", async function (e) {
     if (e.key === "Enter") {
       for (let id = 0; id < sessionStorage.length; id++) {
@@ -52,20 +77,20 @@ window.onload = function () {
       // add quote's info to the card
       let cardHeader = card.lastElementChild.firstElementChild.firstElementChild;
       let cardBody = cardHeader.nextElementSibling.firstElementChild; 
-      cardHeader.firstElementChild.innerHTML = quote["01. symbol"];
-      cardBody.innerHTML = quote["05. price"];
+      cardHeader.firstElementChild.innerHTML = quote["symbol"];
+      cardBody.innerHTML = quote["currentPrice"];
       cardBody = cardBody.nextElementSibling;
       cardBody.innerHTML = [
         "Change: ",
-        quote["09. change"],
-        "(",
-        quote["10. change percent"],
+        quote["change"],
+        " (",
+        quote["changePercent"],
         ")",
       ].join("");
       cardBody = cardBody.nextElementSibling;
-      cardBody.innerHTML = ["Open: ", quote["02. open"]].join("");
+      cardBody.innerHTML = ["Open: ", quote["open"]].join("");
       cardBody = cardBody.nextElementSibling;
-      cardBody.innerHTML = ["Volume: ", quote["06. volume"]].join("");
+      cardBody.innerHTML = ["Volume: ", quote["volume"]].join("");
     }
   });
 };

@@ -1,3 +1,4 @@
+import json
 import os
 
 from cs50 import SQL
@@ -53,13 +54,15 @@ def quote():
         ticker_list = search_ticker(q)
         if ticker_list:
             return make_response(ticker_list, 200)
-        return make_response("No Match", 400)
+        else:
+            return make_response(json.dumps({"message": "No Match"}), 404)
 
     if q and scope == "quote":
         _quote = get_quote(q)
         if _quote:
             return make_response(_quote, 200)
-        return make_response("No Match", 400)
+        else:
+            return make_response("No Match", 404)
 
     return render_template("pages/quote.html")
 

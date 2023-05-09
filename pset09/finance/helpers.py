@@ -93,7 +93,7 @@ def get_quote(q: str):
         # response = requests.get(url)
         # response.raise_for_status()
         ticker = yf.Ticker(q).info
-    except (KeyError, TypeError, ValueError):
+    except requests.RequestException:
         return None
     # Parse response
     try:
@@ -104,14 +104,12 @@ def get_quote(q: str):
                'dayLow', 'dayHigh',
                'currentPrice', 'volume')
         _quote = {k: v for k, v in ticker.items() if k in key}
+        _quote['change'] = round(_quote['currentPrice'] - _quote[
+            'previousClose'], 2)
+        _quote['changePercent'] = str(round(_quote['change'] / _quote[
+            'previousClose'] * 100, 2)) + '%'
         print(_quote)
-        quote = {'01. symbol': 'AAPL', '02. open': '152.3500',
-                 '03. high': '153.0000', '04. low': '150.8500',
-                 '05. price': '152.5500', '06. volume': '59144118',
-                 '07. latest trading day': '2023-02-17',
-                 '08. previous close': '153.7100', '09. change': '-1.1600',
-                 '10. change percent': '-0.7547%'}
-        return quote
+        return _quote
     except (KeyError, TypeError, ValueError):
         return None
 
