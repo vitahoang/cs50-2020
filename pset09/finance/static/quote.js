@@ -6,30 +6,22 @@ window.onload = function () {
 
   // setup an eventListener that only calls after finished typing
   // https://stackoverflow.com/a/5926782 
-  input.addEventListener("keyup", async function () {
+  input.addEventListener("keyup", async function (e) {
     clearTimeout(typingTimer);
+    // stop if user enters to query quote
+    if (e.key === "Enter") {
+      return;
+    }
     // delete the current error
     if (document.getElementById("alert")) {
       input.parentElement.removeChild(document.getElementById("alert"));
     }
 
+    // set timeout to prevent multiple error when typing too fast
     if (input.value) {
       typingTimer = setTimeout(async () => {
         try {
-          // search for tickers 
-          var response = await fetch("/quote?q=" + input.value + "&scope=ticker");
-          if (response.status == 404) {
-            showMessage(input.parentElement,"Ticker not Found","danger")
-          }
-          let symbols = await response.json();
-          let html = "";
-          for (let id in symbols) {
-            let symbol = String(symbols[id]["symbol"])
-              .replace("<", "Slt;")
-              .replace("&", "Samp;");
-            html += "<option>" + symbol + "</option>";
-          }
-          document.querySelector("datalist").innerHTML = html;
+          searchTicker(input);
         } catch (error) {
           console.error(error);
         }
@@ -37,27 +29,10 @@ window.onload = function () {
     }
   });
 
-  var quoteCard = `
-    <div class="col-lg-3 p-3">
-      <div class="card shadow" id="quoteCard">
-        <div class="card-header" id="cardHeader">   
-          <h4></h4>
-        </div>
-        <div class="card-body" id="cardBody">
-          <h5 class="card-title"></h5>
-          <p class="card-text"></p>
-          <p class="card-text"></p>
-          <p class="card-text"></p>
-          <a href="#" class="btn btn-primary">BUY</a>
-          <a href="#" class="btn btn-danger">SELL</a>
-        </div>
-      </div>
-    </div>
-  `;
-
   // enter to get ticker's info
   input.addEventListener("keypress", async function (e) {
     if (e.key === "Enter") {
+      // check if ticker has been searched before
       for (let id = 0; id < sessionStorage.length; id++) {
         if (sessionStorage.getItem(sessionStorage.key(id)) == input.value){
           return;
@@ -72,7 +47,7 @@ window.onload = function () {
 
       // add a quote card to html
       const card = document.getElementById("card");
-      card.innerHTML += quoteCard;
+      card.innerHTML += quote_card;
 
       // add quote's info to the card
       let cardHeader = card.lastElementChild.firstElementChild.firstElementChild;
@@ -90,7 +65,7 @@ window.onload = function () {
       cardBody = cardBody.nextElementSibling;
       cardBody.innerHTML = ["Open: ", quote["open"]].join("");
       cardBody = cardBody.nextElementSibling;
-      cardBody.innerHTML = ["Volume: ", quote["volume"]].join("");
+      cardBody.innerHTML = ["Volume: ", Intl.NumberFormat().format(quote["volume"])].join("");
     }
   });
 };

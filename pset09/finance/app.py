@@ -70,8 +70,7 @@ def quote():
 @app.route("/buy", methods=["GET", "POST"])
 @login_required
 def buy():
-    """Buy shares of stock"""
-    return apology("TODO")
+    return render_template("pages/buy.html")
 
 
 @app.route("/sell", methods=["GET", "POST"])

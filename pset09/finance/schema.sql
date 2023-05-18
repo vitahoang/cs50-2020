@@ -2,7 +2,7 @@ CREATE TABLE users (
 	id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL UNIQUE,
 	username TEXT NOT NULL UNIQUE,
 	hash TEXT NOT NULL,
-	cash TEXT DEFAULT "10000" NOT NULL
+	account_balance TEXT DEFAULT "10000" NOT NULL
 );
 
 CREATE TABLE portfolios (
@@ -27,5 +27,7 @@ CREATE TABLE txns (
 	size TEXT NOT NULL,
 	traded_price TEXT NOT NULL,
 	cash_amount TEXT NOT NULL,
+	pre_balance TEXT NOT NULL,
+	post_balance TEXT NOT NULL,
 	FOREIGN KEY(portfolio_id) REFERENCES portfolio(id)
 );

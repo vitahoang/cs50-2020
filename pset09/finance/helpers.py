@@ -106,8 +106,8 @@ def get_quote(q: str):
         _quote = {k: v for k, v in ticker.items() if k in key}
         _quote['change'] = round(_quote['currentPrice'] - _quote[
             'previousClose'], 2)
-        _quote['changePercent'] = str(round(_quote['change'] / _quote[
-            'previousClose'] * 100, 2)) + '%'
+        _quote['changePercent'] = "{:.2%}".format(_quote['change'] / _quote[
+            'previousClose'])
         print(_quote)
         return _quote
     except (KeyError, TypeError, ValueError):
