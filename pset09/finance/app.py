@@ -3,7 +3,7 @@ import os
 
 from cs50 import SQL
 from flask import Flask, flash, redirect, render_template, request, session, \
-    make_response, jsonify
+    make_response, jsonify, url_for
 from tempfile import mkdtemp
 from werkzeug.security import check_password_hash, generate_password_hash
 
@@ -70,7 +70,10 @@ def quote():
 @app.route("/buy", methods=["GET", "POST"])
 @login_required
 def buy():
-    return render_template("pages/buy.html")
+    if request.method == "GET":
+        return render_template("pages/buy.html")
+    bid = request.json
+    print(bid)
 
 
 @app.route("/sell", methods=["GET", "POST"])
@@ -158,3 +161,21 @@ def register():
             return render_template("pages/login.html")
     else:
         return render_template("pages/register.html")
+
+
+@login_required
+@app.route("/profile", methods=["GET"])
+def profile():
+    """Query user profile"""
+    print(session["user_id"])
+    user = db.execute("SELECT id, username, account_balance FROM users WHERE "
+                      "id = ?", session["user_id"])[0]
+    if user:
+        return make_response(
+            jsonify(
+                user_id=user["id"],
+                username=user["username"],
+                account_balance=user["account_balance"]
+            ), 200)
+    else:
+        return make_response("No Match", 404)

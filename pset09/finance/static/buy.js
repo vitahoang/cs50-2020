@@ -1,4 +1,4 @@
-window.onload = function () {
+window.addEventListener("load", function () {
 
   sessionStorage.clear();
   var input_search = document.querySelector("input");
@@ -30,18 +30,19 @@ window.onload = function () {
     }
   });
 
-  let quote = null;
   // enter to get ticker's info
+  let quote = null;
   input_search.addEventListener("keypress", async function (e) {
     if (e.key === "Enter") {
       let response = await fetch("/quote?q=" + input_search.value + "&scope=quote");
       quote = await response.json();
       sessionStorage.setItem(sessionStorage.length, input_search.value);
 
+      //show the quote card
       const buyCard = document.getElementById("card").lastElementChild;
       buyCard.classList.remove("d-none");
 
-      // add quote's info to the card
+      // show quote's info on the card
       let cardHeader = buyCard.firstElementChild.firstElementChild;
       let cardBody = cardHeader.nextElementSibling.firstElementChild; 
       cardHeader.firstElementChild.innerHTML = quote["symbol"];
@@ -75,6 +76,8 @@ window.onload = function () {
         console.log(error);
       }
     }
-    
   })
-};
+
+  //Submit a bid 
+  
+});

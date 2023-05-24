@@ -1,4 +1,4 @@
-window.onload = function () {
+window.addEventListener("load", function () {
 
   sessionStorage.clear();
   var input = document.querySelector("input");
@@ -68,4 +68,4 @@ window.onload = function () {
       cardBody.innerHTML = ["Volume: ", Intl.NumberFormat().format(quote["volume"])].join("");
     }
   });
-};
+});
