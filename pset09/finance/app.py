@@ -167,7 +167,6 @@ def register():
 @app.route("/profile", methods=["GET"])
 def profile():
     """Query user profile"""
-    print(session["user_id"])
     user = db.execute("SELECT id, username, account_balance FROM users WHERE "
                       "id = ?", session["user_id"])[0]
     if user:
@@ -175,7 +174,7 @@ def profile():
             jsonify(
                 user_id=user["id"],
                 username=user["username"],
-                account_balance=user["account_balance"]
+                account_balance="{0:,.2f}".format(float(user["account_balance"]))
             ), 200)
     else:
         return make_response("No Match", 404)

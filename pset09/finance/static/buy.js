@@ -60,7 +60,6 @@ window.addEventListener("load", function () {
       } else{
         cardBody.classList.add("text-danger")
       }
-      cardBody = cardBody.nextElementSibling.nextElementSibling;
     }
   });
 
@@ -70,8 +69,22 @@ window.addEventListener("load", function () {
     let total_value = 0
     if (input_size.value) {
       try {
+        // reset the addon message
+        let message = document.getElementById("quote-card-addon-message");
+        message.innerHTML = "";
+        message.setAttribute("class", "form-text");
+
+        // show total value
         total_value = calPositionValue(input_size.value, quote["currentPrice"]);
         document.getElementById("total-value").setAttribute("value", total_value);
+
+        // show error if total value > balance 
+        let balance = parseFloat(sessionStorage.getItem("account_balance").replace(/,/,""));
+        console.log(parseFloat(total_value.replace(/,/,"")));
+        if (parseFloat(total_value.replace(/,/,"")) > balance) {
+          message.classList.add("text-danger");
+          message.innerHTML = "Your balance is too low for this call"
+        }
       } catch (error) {
         console.log(error);
       }
