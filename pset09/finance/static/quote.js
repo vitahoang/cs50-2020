@@ -1,20 +1,19 @@
-window.addEventListener("load", function () {
-
+window.addEventListener('load', function() {
   sessionStorage.clear();
-  var input = document.querySelector("input");
-  var typingTimer;
+  const input = document.querySelector('input');
+  let typingTimer;
 
   // setup an eventListener that only calls after finished typing
-  // https://stackoverflow.com/a/5926782 
-  input.addEventListener("keyup", async function (e) {
+  // https://stackoverflow.com/a/5926782
+  input.addEventListener('keyup', async function(e) {
     clearTimeout(typingTimer);
     // stop if user enters to query quote
-    if (e.key === "Enter") {
+    if (e.key === 'Enter') {
       return;
     }
     // delete the current error
-    if (document.getElementById("alert")) {
-      input.parentElement.removeChild(document.getElementById("alert"));
+    if (document.getElementById('alert')) {
+      input.parentElement.removeChild(document.getElementById('alert'));
     }
 
     // set timeout to prevent multiple error when typing too fast
@@ -30,42 +29,45 @@ window.addEventListener("load", function () {
   });
 
   // enter to get ticker's info
-  input.addEventListener("keypress", async function (e) {
-    if (e.key === "Enter") {
+  input.addEventListener('keypress', async function(e) {
+    if (e.key === 'Enter') {
       // check if ticker has been searched before
       for (let id = 0; id < sessionStorage.length; id++) {
-        if (sessionStorage.getItem(sessionStorage.key(id)) == input.value){
+        if (sessionStorage.getItem(sessionStorage.key(id)) == input.value) {
           return;
         } else {
-          console.log("fail");
+          console.log('fail');
         }
       }
 
-      let response = await fetch("/quote?q=" + input.value + "&scope=quote");
-      let quote = await response.json();
+      const response = await fetch('/quote?q=' + input.value + '&scope=quote');
+      const quote = await response.json();
       sessionStorage.setItem(sessionStorage.length, input.value);
 
       // add a quote card to html
-      const card = document.getElementById("card");
-      card.innerHTML += quote_card;
+      const card = document.getElementById('card');
+      card.innerHTML += quoteCard;
 
       // add quote's info to the card
-      let cardHeader = card.lastElementChild.firstElementChild.firstElementChild;
-      let cardBody = cardHeader.nextElementSibling.firstElementChild; 
-      cardHeader.firstElementChild.innerHTML = quote["symbol"];
-      cardBody.innerHTML = quote["currentPrice"];
+      const cardHeader = card.lastElementChild
+          .firstElementChild.firstElementChild;
+      let cardBody = cardHeader.nextElementSibling.firstElementChild;
+      cardHeader.firstElementChild.innerHTML = quote['symbol'];
+      cardBody.innerHTML = quote['currentPrice'];
       cardBody = cardBody.nextElementSibling;
       cardBody.innerHTML = [
-        "Change: ",
-        quote["change"],
-        " (",
-        quote["changePercent"],
-        ")",
-      ].join("");
+        'Change: ',
+        quote['change'],
+        ' (',
+        quote['changePercent'],
+        ')',
+      ].join('');
       cardBody = cardBody.nextElementSibling;
-      cardBody.innerHTML = ["Open: ", quote["open"]].join("");
+      cardBody.innerHTML = ['Open: ', quote['open']].join('');
       cardBody = cardBody.nextElementSibling;
-      cardBody.innerHTML = ["Volume: ", Intl.NumberFormat().format(quote["volume"])].join("");
+      cardBody.innerHTML =
+      // eslint-disable-next-line new-cap
+      ['Volume: ', Intl.NumberFormat().format(quote['volume'])].join('');
     }
   });
 });

@@ -1,4 +1,5 @@
-var quote_card = `
+// eslint-disable-next-line no-unused-vars
+const quoteCard = `
   <div class="col-lg-3 p-3">
     <div class="card shadow" id="quote-card">
       <div class="card-header" id="card-header">   
