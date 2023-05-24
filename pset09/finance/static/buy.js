@@ -2,6 +2,7 @@ window.addEventListener("load", function () {
 
   sessionStorage.clear();
   var input_search = document.querySelector("input");
+  var cta_buy = document.getElementById("cta-buy");
   var typingTimer;
 
   // setup an eventListener that only calls after finished typing
@@ -74,6 +75,9 @@ window.addEventListener("load", function () {
         message.innerHTML = "";
         message.setAttribute("class", "form-text");
 
+        // enable cta button
+        cta_buy.removeAttribute('disable', '');
+
         // show total value
         total_value = calPositionValue(input_size.value, quote["currentPrice"]);
         document.getElementById("total-value").setAttribute("value", total_value);
@@ -84,6 +88,7 @@ window.addEventListener("load", function () {
         if (parseFloat(total_value.replace(/,/,"")) > balance) {
           message.classList.add("text-danger");
           message.innerHTML = "Your balance is too low for this call"
+          cta_buy.setAttribute('disable', '');
         }
       } catch (error) {
         console.log(error);
@@ -92,5 +97,7 @@ window.addEventListener("load", function () {
   })
 
   //Submit a bid 
+
+
   
 });
