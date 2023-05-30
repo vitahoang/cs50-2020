@@ -1,13 +1,15 @@
 import json
-import os
 
 from cs50 import SQL
 from flask import Flask, flash, redirect, render_template, request, session, \
-    make_response, jsonify, url_for
-from tempfile import mkdtemp
+    make_response, jsonify
 from werkzeug.security import check_password_hash, generate_password_hash
 
-from helpers import apology, login_required, usd, search_ticker, get_quote
+from helpers import apology, usd
+from modules.tickers import search_ticker, get_quote
+from modules.txns import add_txn
+from modules.users import login_required, get_balance
+from modules.portfolios import get_portfolio, create_portfolio
 
 # Configure application
 app = Flask(__name__)
@@ -19,13 +21,10 @@ app.jinja_env.filters["usd"] = usd
 # Configure CS50 Library to use SQLite database
 db = SQL("sqlite:///finance.db")
 
-# Set API_KEY
-os.environ.setdefault("IEX_API_KEY", "sk_e1dbd11abe3344b0a0233a9ea8a4ab9b")
-os.environ.setdefault("API_KEY", "GF3Y0QEZSMFYRA0N")
 
 # Make sure API key is set
-if not os.environ.get("API_KEY"):
-    raise RuntimeError("API_KEY not set")
+# if not os.environ.get("API_KEY"):
+#     raise RuntimeError("API_KEY not set")
 
 
 @app.after_request
@@ -74,6 +73,23 @@ def buy():
         return render_template("pages/buy.html")
     bid = request.json
     print(bid)
+
+    # update user balance
+    get_balance(db, session["user_id"])
+
+    # Search for portfolio
+    portfolio = get_portfolio(db, session["user_id"], bid["ticker"])
+    if portfolio:
+        portfolio_id = portfolio["id"]
+        print(portfolio)
+    # if it doesn't exist, create a new one
+    else:
+        portfolio_id = create_portfolio(db, session["user_id"], bid["ticker"])
+
+    # Add a new txn then update the portfolio
+    txn = add_txn(db, portfolio, bid)
+    print(txn)
+    return make_response(jsonify(portfolio=portfolio_id), 200)
 
 
 @app.route("/sell", methods=["GET", "POST"])
@@ -174,7 +190,8 @@ def profile():
             jsonify(
                 user_id=user["id"],
                 username=user["username"],
-                account_balance="{0:,.2f}".format(float(user["account_balance"]))
+                account_balance="{0:,.2f}".format(
+                    float(user["account_balance"]))
             ), 200)
     else:
         return make_response("No Match", 404)

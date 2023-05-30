@@ -1,11 +1,11 @@
-window.addEventListener("load", async function(){
+window.addEventListener('load', async function() {
   try {
-    let res = await fetch("/profile")
-    let user = await res.json();
-    let html = document.getElementById("account-balance")
-    html.innerHTML = ["Balance: $", user["account_balance"]].join("");
-    sessionStorage.setItem("account_balance", user["account_balance"])
+    const res = await fetch('/profile');
+    const user = await res.json();
+    const html = document.getElementById('account-balance');
+    html.innerHTML = ['Balance: $', user['account_balance']].join('');
+    sessionStorage.setItem('account_balance', user['account_balance']);
   } catch (error) {
-    console.log(error)
+    console.log(error);
   }
 });

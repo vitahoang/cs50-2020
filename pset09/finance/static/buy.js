@@ -2,6 +2,7 @@ window.addEventListener('load', function() {
   sessionStorage.clear();
   const inputSearch = document.querySelector('input');
   const ctaBuy = document.getElementById('cta-buy');
+  const inputSize = document.getElementById('input-size');
   let typingTimer;
 
   // setup an eventListener that only calls after finished typing
@@ -66,7 +67,6 @@ window.addEventListener('load', function() {
   });
 
   // calculate position value
-  const inputSize = document.getElementById('input-size');
   inputSize.addEventListener('input', async function() {
     let totalvalue = 0;
     if (inputSize.value) {
@@ -77,7 +77,9 @@ window.addEventListener('load', function() {
         message.setAttribute('class', 'form-text');
 
         // enable cta button
-        ctaBuy.removeAttribute('disable', '');
+        if (inputSize.value > 0) {
+          ctaBuy.removeAttribute('disabled', '');
+        }
 
         // show total value
         totalvalue = calPositionValue(inputSize.value, quote['currentPrice']);
@@ -89,11 +91,10 @@ window.addEventListener('load', function() {
         const balance = parseFloat(
             sessionStorage.getItem('account_balance').replace(/,/, ''),
         );
-        console.log(parseFloat(totalvalue.replace(/,/, '')));
         if (parseFloat(totalvalue.replace(/,/, '')) > balance) {
           message.classList.add('text-danger');
           message.innerHTML = 'Your balance is too low for this call';
-          ctaBuy.setAttribute('disable', '');
+          ctaBuy.setAttribute('disabled', '');
         }
       } catch (error) {
         console.log(error);
@@ -102,4 +103,20 @@ window.addEventListener('load', function() {
   });
 
   // Submit a bid
+  ctaBuy.addEventListener('click', async function() {
+    const req = await fetch('/buy', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        txn_type: 'buy',
+        ticker: quote['symbol'],
+        size: inputSize.value,
+      },
+      ),
+    });
+    const res = await req.json();
+    console.log(res);
+  });
 });
