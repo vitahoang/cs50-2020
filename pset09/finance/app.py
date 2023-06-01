@@ -5,11 +5,13 @@ from flask import Flask, flash, redirect, render_template, request, session, \
     make_response, jsonify
 from werkzeug.security import check_password_hash, generate_password_hash
 
+from error import BidZero
 from helpers import apology, usd
 from modules.tickers import search_ticker, get_quote
-from modules.txns import add_txn
+from modules.txns import buy_txn
 from modules.users import login_required, get_balance
-from modules.portfolios import get_portfolio, create_portfolio
+from modules.portfolios import get_user_portfolio_by_ticker, \
+    create_portfolio, get_portfolio_by_userid
 
 # Configure application
 app = Flask(__name__)
@@ -36,11 +38,14 @@ def after_request(response):
     return response
 
 
-@app.route("/")
+@app.route("/", methods=["GET"])
 @login_required
 def index():
     """Show portfolio of stocks"""
-    return render_template("pages/portfolio.html")
+    portfolio = get_portfolio_by_userid(db, int(session["user_id"]))
+    print("index:")
+    print(portfolio)
+    return render_template("pages/portfolio.html", portfolio=portfolio)
 
 
 @app.route("/quote", methods=["GET"])
@@ -71,32 +76,44 @@ def quote():
 def buy():
     if request.method == "GET":
         return render_template("pages/buy.html")
-    bid = request.json
-    print(bid)
 
-    # update user balance
-    get_balance(db, session["user_id"])
+    if request.method == "POST":
+        bid = request.json
+        print(bid)
+        if bid["size"] == 0:
+            raise BidZero
 
-    # Search for portfolio
-    portfolio = get_portfolio(db, session["user_id"], bid["ticker"])
-    if portfolio:
-        portfolio_id = portfolio["id"]
-        print(portfolio)
-    # if it doesn't exist, create a new one
-    else:
-        portfolio_id = create_portfolio(db, session["user_id"], bid["ticker"])
+        # update user balance
+        get_balance(db, session["user_id"])
 
-    # Add a new txn then update the portfolio
-    txn = add_txn(db, portfolio, bid)
-    print(txn)
-    return make_response(jsonify(portfolio=portfolio_id), 200)
+        # search for portfolio
+        portfolio = get_user_portfolio_by_ticker(db, session["user_id"],
+                                                 bid["ticker"])
+
+        # if portfolio doesn't exist, create a new one
+        if len(portfolio) == 0:
+            create_portfolio(db, session["user_id"],
+                             bid["ticker"])
+            portfolio = get_user_portfolio_by_ticker(db, session["user_id"],
+                                                     bid["ticker"])
+
+        # portfolio should be unique
+        if len(portfolio) != 1:
+            return make_response(500)
+
+        # access the portfolio object
+        portfolio = portfolio[0]
+        txn = buy_txn(db, portfolio, bid)
+        return make_response(jsonify(txn=txn), 200)
 
 
 @app.route("/sell", methods=["GET", "POST"])
 @login_required
 def sell():
     """Sell shares of stock"""
-    return apology("TODO")
+    if request.method == "GET":
+        portfolio = get_portfolio_by_userid(db, int(session["user_id"]))
+        return render_template("pages/sell.html", portfolio=portfolio)
 
 
 @app.route("/history")

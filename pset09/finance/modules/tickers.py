@@ -3,6 +3,8 @@ import urllib.parse
 import requests
 import yfinance as yf
 
+from helpers import decimal2
+
 
 def search_ticker(keywords: str):
     """Look up for tickers"""
@@ -63,7 +65,6 @@ def get_quote(q: str):
             'previousClose'], 2)
         _quote['changePercent'] = "{:.2%}".format(_quote['change'] / _quote[
             'previousClose'])
-        print(_quote)
         return _quote
     except (KeyError, TypeError, ValueError):
         return None

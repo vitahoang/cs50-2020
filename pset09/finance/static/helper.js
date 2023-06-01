@@ -4,8 +4,8 @@
  * @param {HTMLElement} element - The target HTML element
  * to append the message to.
  * @param {string} message - The message to be displayed.
- * @param {string} status - The status of the message,
- * such as success, warning or danger.
+ * @param {string} status - The status of the message
+ * {success, warning, danger, dark, light, primary, secondary}
  *
  * @return {void}
  */
@@ -74,4 +74,9 @@ function calPositionValue(size, price) {
   }
 }
 
-
+// eslint-disable-next-line require-jsdoc, no-unused-vars
+function clearError(document) {
+  if (document.getElementById('alert')) {
+    inputSearch.parentElement.removeChild(document.getElementById('alert'));
+  }
+}

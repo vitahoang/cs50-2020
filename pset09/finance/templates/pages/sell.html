@@ -1,0 +1,43 @@
+{% extends 'components/layout.html' %}
+{% set title = 'Sell' %}
+
+
+{% block main %}
+<div class="row justify-content-start mx-5 mb-5" id="card">
+    {% for ticker in portfolio["tickers"] %}
+    <div class="col-lg-3 p-3">
+        <div class="card shadow" id="sell-card">
+            <div class="card-header" id="card-header">
+                <h4>{{ticker["ticker"]}}</h4>
+            </div>
+            <div class="card-body" id="card-body">
+                <h5 class="card-title">Price: {{ticker["current_price"]}}</h5>
+                {% if ticker["pnl"]|int > -0.001 %}
+                <p class="card-text text-success">Change: {{ticker["price_change"]}} ({{ticker["pnl"]}}%)</p>
+                {% else %}
+                <p class="card-text text-danger">Change: {{ticker["price_change"]}} ({{ticker["pnl"]}}%)</p>
+                {% endif %}
+                <div class="input-group mb-3">
+                    <span class="input-group-text" id="inputGroup-sizing-default">Position Size</span>
+                    <input type="number" class="form-control" aria-label="Input Position Size"
+                           aria-describedby="inputGroup-sizing-default" value="0" min="0" id="input-size">
+                </div>
+                <div class="mb-3">
+                    <div class="input-group">
+                        <span class="input-group-text" style="padding: 0.375rem 1.2rem 0.375rem 0.75rem;">Total</span>
+                        <span class="input-group-text" style="padding: 0.375rem 1.25rem 0.375rem 1.25rem;">$</span>
+                        <input type="text" class="form-control"
+                               aria-label="Dollar amount (with dot and two decimal places)" readonly id="total-value"
+                               disabled>
+                    </div>
+                    <div class="form-text" id="quote-card-addon-message"></div>
+                </div>
+                <p class="card-text"></p>
+                <button class="btn btn-danger" id="cta-buy" disabled>CONFIRM SELL</button>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+{% endblock %}
