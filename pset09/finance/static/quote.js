@@ -35,8 +35,6 @@ window.addEventListener('load', function() {
       for (let id = 0; id < sessionStorage.length; id++) {
         if (sessionStorage.getItem(sessionStorage.key(id)) == input.value) {
           return;
-        } else {
-          console.log('fail');
         }
       }
 
@@ -47,12 +45,13 @@ window.addEventListener('load', function() {
       // add a quote card to html
       const card = document.getElementById('card');
       card.innerHTML += quoteCard;
+      btn = document.getElementsByClassName('btn'); // get new btn
 
       // add quote's info to the card
       const cardHeader = card.lastElementChild
           .firstElementChild.firstElementChild;
-      let cardBody = cardHeader.nextElementSibling.firstElementChild;
       cardHeader.firstElementChild.innerHTML = quote['symbol'];
+      let cardBody = cardHeader.nextElementSibling.firstElementChild;
       cardBody.innerHTML = quote['currentPrice'];
       cardBody = cardBody.nextElementSibling;
       cardBody.innerHTML = [
@@ -68,6 +67,22 @@ window.addEventListener('load', function() {
       cardBody.innerHTML =
       // eslint-disable-next-line new-cap
       ['Volume: ', Intl.NumberFormat().format(quote['volume'])].join('');
+      cardBody = cardBody.nextElementSibling;
+      clickBuySell(cardBody, quote['symbol']);
+      cardBody = cardBody.nextElementSibling;
+      clickBuySell(cardBody, quote['symbol']);
     }
   });
+
+  // redirect when click CTA BUY or SELL
+  // eslint-disable-next-line require-jsdoc
+  function clickBuySell(btn, ticker) {
+    btn.addEventListener('click', function() {
+      if (btn.innerText == 'BUY') {
+        this.setAttribute('href', ['/buy?ticker=', ticker].join(''));
+      } else {
+        this.setAttribute('href', ['/sell?ticker=', ticker].join(''));
+      }
+    });
+  }
 });

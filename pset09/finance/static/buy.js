@@ -11,6 +11,7 @@ window.addEventListener('load', async function() {
   const queryString = window.location.search;
   const urlParams = new URLSearchParams(queryString);
   const ticker = urlParams.get('ticker');
+  console.log(ticker);
   if (ticker) {
     const response = await fetch(
         '/quote?q=' + ticker + '&scope=quote',
