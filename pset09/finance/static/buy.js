@@ -1,9 +1,38 @@
-window.addEventListener('load', function() {
+window.addEventListener('load', async function() {
   sessionStorage.clear();
   const inputSearch = document.querySelector('input');
   const ctaBuy = document.getElementById('cta-buy');
   const inputSize = document.getElementById('input-size');
+  const buyCard = document.getElementById('card').lastElementChild;
   let typingTimer;
+  let quote = null;
+
+  // show ticker's info by using url param
+  const queryString = window.location.search;
+  const urlParams = new URLSearchParams(queryString);
+  const ticker = urlParams.get('ticker');
+  if (ticker) {
+    const response = await fetch(
+        '/quote?q=' + ticker + '&scope=quote',
+    );
+    quote = await response.json();
+    sessionStorage.setItem(sessionStorage.length, inputSearch.value);
+    showBuyCard(buyCard, quote);
+  }
+
+  // enter to get ticker's info
+  inputSearch.addEventListener('keypress', async function(e) {
+    if (e.key === 'Enter') {
+      const response = await fetch(
+          '/quote?q=' + inputSearch.value + '&scope=quote',
+      );
+      quote = await response.json();
+      sessionStorage.setItem(sessionStorage.length, inputSearch.value);
+
+      // show the quote card
+      showBuyCard(buyCard, quote);
+    }
+  });
 
   // setup an eventListener that only calls after finished typing
   // https://stackoverflow.com/a/5926782
@@ -28,41 +57,6 @@ window.addEventListener('load', function() {
           console.error(error);
         }
       }, 400);
-    }
-  });
-
-  // enter to get ticker's info
-  let quote = null;
-  inputSearch.addEventListener('keypress', async function(e) {
-    if (e.key === 'Enter') {
-      const response = await fetch(
-          '/quote?q=' + inputSearch.value + '&scope=quote',
-      );
-      quote = await response.json();
-      sessionStorage.setItem(sessionStorage.length, inputSearch.value);
-
-      // show the quote card
-      const buyCard = document.getElementById('card').lastElementChild;
-      buyCard.classList.remove('d-none');
-
-      // show quote's info on the card
-      const cardHeader = buyCard.firstElementChild.firstElementChild;
-      let cardBody = cardHeader.nextElementSibling.firstElementChild;
-      cardHeader.firstElementChild.innerHTML = quote['symbol'];
-      cardBody.innerHTML = ['Price: ', quote['currentPrice']].join('');
-      cardBody = cardBody.nextElementSibling;
-      cardBody.innerHTML = [
-        'Change: ',
-        quote['change'],
-        ' (',
-        quote['changePercent'],
-        ')',
-      ].join('');
-      if (quote['change'] >= 0) {
-        cardBody.classList.add('text-success');
-      } else {
-        cardBody.classList.add('text-danger');
-      }
     }
   });
 
@@ -113,10 +107,33 @@ window.addEventListener('load', function() {
         txn_type: 'buy',
         ticker: quote['symbol'],
         size: inputSize.value,
-      },
-      ),
+      }),
     });
     const res = await req.json();
     console.log(res);
   });
 });
+
+// eslint-disable-next-line require-jsdoc
+function showBuyCard(buyCard, quote) {
+  buyCard.classList.remove('d-none');
+
+  // show quote's info on the card
+  const cardHeader = buyCard.firstElementChild.firstElementChild;
+  let cardBody = cardHeader.nextElementSibling.firstElementChild;
+  cardHeader.firstElementChild.innerHTML = quote['symbol'];
+  cardBody.innerHTML = ['Price: ', quote['currentPrice']].join('');
+  cardBody = cardBody.nextElementSibling;
+  cardBody.innerHTML = [
+    'Change: ',
+    quote['change'],
+    ' (',
+    quote['changePercent'],
+    ')',
+  ].join('');
+  if (quote['change'] >= 0) {
+    cardBody.classList.add('text-success');
+  } else {
+    cardBody.classList.add('text-danger');
+  }
+}

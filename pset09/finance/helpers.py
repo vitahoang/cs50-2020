@@ -19,8 +19,11 @@ def apology(message, code=400):
                            bottom=escape(message)), code
 
 
+def format_float(value):
+    """Format value as float with 2 decimals point"""
+    return float("{:.2f}".format(value))
+
+
 def usd(value):
     """Format value as USD."""
     return f"${value:,.2f}"
-
-

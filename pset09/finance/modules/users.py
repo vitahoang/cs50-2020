@@ -2,6 +2,8 @@ from functools import wraps
 
 from flask import session, redirect
 
+from helpers import format_float
+
 
 def login_required(f):
     """
@@ -19,14 +21,15 @@ def login_required(f):
     return decorated_function
 
 
-def get_balance(db, user_id: int):
+def get_balance(db, user_id: int) -> float:
     try:
-        balance = db.execute("SELECT account_balance FROM users WHERE "
-                             "id = ?", user_id)[0]["account_balance"]
+        balance = format_float(db.execute("SELECT account_balance FROM users "
+                                          "WHERE id = ?", user_id)[0]
+                               ["account_balance"])
         session["user_balance"] = balance
     except Exception as e:
         raise e
-    return float(balance)
+    return balance
 
 
 def set_balance(db, user_id: int, balance: str) -> float:
