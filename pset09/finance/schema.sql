@@ -13,9 +13,9 @@ CREATE TABLE portfolios (
 	updated_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 	user_id INTEGER NOT NULL,
 	ticker TEXT NOT NULL,
-	total_value TEXT DEFAULT 0,
 	size TEXT DEFAULT 0,
 	entry_price TEXT DEFAULT 0,
+	total_value TEXT DEFAULT 0,
 	FOREIGN KEY(user_id) REFERENCES users(id)
 );
 

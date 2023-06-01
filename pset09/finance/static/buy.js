@@ -11,7 +11,6 @@ window.addEventListener('load', async function() {
   const queryString = window.location.search;
   const urlParams = new URLSearchParams(queryString);
   const ticker = urlParams.get('ticker');
-  console.log(ticker);
   if (ticker) {
     const response = await fetch(
         '/quote?q=' + ticker + '&scope=quote',
@@ -44,7 +43,6 @@ window.addEventListener('load', async function() {
       return;
     }
 
-    // delete the current 404 error
     if (document.getElementById('alert')) {
       inputSearch.parentElement.removeChild(document.getElementById('alert'));
     }
@@ -63,6 +61,9 @@ window.addEventListener('load', async function() {
 
   // calculate position value
   inputSize.addEventListener('input', async function() {
+    if (document.getElementById('alert')) {
+      inputSearch.parentElement.removeChild(document.getElementById('alert'));
+    }
     let totalvalue = 0;
     if (inputSize.value) {
       try {
@@ -99,6 +100,10 @@ window.addEventListener('load', async function() {
 
   // Submit a bid
   ctaBuy.addEventListener('click', async function() {
+    // delete the current error
+    if (document.getElementById('alert')) {
+      inputSearch.parentElement.removeChild(document.getElementById('alert'));
+    }
     const req = await fetch('/buy', {
       method: 'POST',
       headers: {
@@ -110,8 +115,17 @@ window.addEventListener('load', async function() {
         size: inputSize.value,
       }),
     });
-    const res = await req.json();
-    console.log(res);
+    if (req.ok) {
+      const res = await req.json();
+      txn = res['txn'];
+      console.log(txn);
+      message = ['Your order has been filled. (Transaction ID: ',
+        txn['id'], '; ',
+        'Size: ', txn['size'], '; ',
+        'Value: ', txn['total_value']].join(''), ')';
+      console.log(message);
+      showMessage(inputSearch.parentElement, message, 'success');
+    }
   });
 });
 

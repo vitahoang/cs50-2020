@@ -1,8 +1,9 @@
+from decimal import Decimal
 from functools import wraps
 
 from flask import session, redirect
 
-from helpers import format_float
+from helpers import decimal2
 
 
 def login_required(f):
@@ -21,26 +22,24 @@ def login_required(f):
     return decorated_function
 
 
-def get_balance(db, user_id: int) -> float:
+def get_balance(db, user_id: int) -> Decimal:
     try:
-        balance = format_float(db.execute("SELECT account_balance FROM users "
-                                          "WHERE id = ?", user_id)[0]
-                               ["account_balance"])
+        balance = decimal2(db.execute("SELECT account_balance FROM users "
+                                      "WHERE id = ?", user_id)[0]
+                           ["account_balance"])
         session["user_balance"] = balance
     except Exception as e:
         raise e
     return balance
 
 
-def set_balance(db, user_id: int, balance: str) -> float:
+def set_balance(db, user_id: int, new_balance: str) -> Decimal:
     try:
-        db.execute("UPDATE users"
-                   "SET account_balance = ?"
-                   "WHERE id = ?",
+        db.execute("UPDATE users SET account_balance = ? WHERE id = ?",
+                   new_balance,
                    user_id,
-                   balance,
                    )
-        session["user_balance"] = balance
-        return float(balance)
+        session["user_balance"] = new_balance
+        return decimal2(new_balance)
     except Exception as e:
         raise e
