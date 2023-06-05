@@ -5,10 +5,11 @@ from flask import Flask, flash, redirect, render_template, request, session, \
     make_response, jsonify
 from werkzeug.security import check_password_hash, generate_password_hash
 
-from error import BidZero
+import error
+from error import *
 from helpers import apology, usd
 from modules.tickers import search_ticker, get_quote
-from modules.txns import buy_txn
+from modules.txns import buy_txn, sell_txn
 from modules.users import login_required, get_balance
 from modules.portfolios import get_user_portfolio_by_ticker, \
     create_portfolio, get_portfolio_by_userid
@@ -113,8 +114,26 @@ def sell():
     """Sell shares of stock"""
     if request.method == "GET":
         portfolio = get_portfolio_by_userid(db, int(session["user_id"]))
-        print(portfolio)
         return render_template("pages/sell.html", portfolio=portfolio)
+    if request.method == "POST":
+        ask = request.json
+        portfolio = get_user_portfolio_by_ticker(
+            db, int(session["user_id"]), ask["ticker"]
+        )
+        if len(portfolio) == 0:
+            raise error.LowPortfolio
+        sell_txn(db, portfolio[0], ask)
+
+        # Update size of the portfolio after selling
+        portfolio = get_user_portfolio_by_ticker(
+            db, int(session["user_id"]), ask["ticker"]
+        )
+        return make_response(
+            jsonify(message="Order executed successfully",
+                    order=ask,
+                    updated_portfolio=portfolio[0]),
+            200
+        )
 
 
 @app.route("/history")

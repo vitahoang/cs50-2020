@@ -15,7 +15,7 @@ def get_user_portfolio_by_ticker(db, user_id, ticker) -> dict:
         db: An instance of the database connection.
         user_id (int): The user ID for the portfolio to retrieve.
         ticker (str): The ticker symbol for the portfolio to retrieve.
-        either 'long' or 'short'.
+
 
     Returns:
         dict: A dictionary containing the details of the retrieved portfolio.

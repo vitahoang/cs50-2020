@@ -122,14 +122,22 @@ window.addEventListener('load', async function() {
       message = ['Your order has been filled. (Transaction ID: ',
         txn['id'], '; ',
         'Size: ', txn['size'], '; ',
-        'Value: ', txn['total_value']].join(''), ')';
+        'Value: ', txn['total_value'], ')'].join('');
       console.log(message);
       showMessage(inputSearch.parentElement, message, 'success');
     }
+    updateAccountBalance();
   });
 });
 
-// eslint-disable-next-line require-jsdoc
+/**
+ * Displays the stock quote information on the buy card
+ * @param {object} buyCard - The HTML element representing the buy card.
+ * @param {object} quote - The object containing the stock quote information
+ * to be displayed on the card.
+ *
+ * @return {void}
+ */
 function showBuyCard(buyCard, quote) {
   buyCard.classList.remove('d-none');
 
