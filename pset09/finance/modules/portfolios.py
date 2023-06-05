@@ -69,7 +69,7 @@ def update_portfolio(db, portfolio, txn):
     if txn["txn_type"] == "sell":
         new_size = cur_size - decimal2(txn["size"])
         if new_size < 0:
-            return False
+            raise LowPortfolio
         new_entry_price = cur_entry_price
 
     try:

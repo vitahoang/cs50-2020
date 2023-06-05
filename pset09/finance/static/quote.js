@@ -73,16 +73,25 @@ window.addEventListener('load', function() {
       clickBuySell(cardBody, quote['symbol']);
     }
   });
-
-  // redirect when click CTA BUY or SELL
-  // eslint-disable-next-line require-jsdoc
-  function clickBuySell(btn, ticker) {
-    btn.addEventListener('click', function() {
-      if (btn.innerText == 'BUY') {
-        this.setAttribute('href', ['/buy?ticker=', ticker].join(''));
-      } else {
-        this.setAttribute('href', ['/sell?ticker=', ticker].join(''));
-      }
-    });
-  }
 });
+
+/**
+* Attaches a click event listener to the provided button element and sets
+its href attribute based on its inner text.
+*
+* @param {object} btn - The button element where the click event listener needs
+to be attached.
+* @param {string} ticker - The stock ticker value that will be used to construct
+the value of the href attribute.
+*
+* @return {void}
+*/
+function clickBuySell(btn, ticker) {
+  btn.addEventListener('click', function() {
+    if (btn.innerText == 'BUY') {
+      this.setAttribute('href', ['/buy?ticker=', ticker].join(''));
+    } else {
+      this.setAttribute('href', ['/sell?ticker=', ticker].join(''));
+    }
+  });
+}

@@ -6,34 +6,48 @@
 <div class="row justify-content-start mx-5 mb-5" id="card">
     {% for ticker in portfolio["tickers"] %}
     <div class="col-lg-3 p-3">
-        <div class="card shadow" id="sell-card">
-            <div class="card-header" id="card-header">
+        <div class="card shadow" id="sell-card-{{ticker['ticker']}}">
+            <div class="card-header" id="card-header-{{ticker['ticker']}}">
                 <h4>{{ticker["ticker"]}}</h4>
             </div>
-            <div class="card-body" id="card-body">
+            <div class="card-body" id="card-body-{{ticker['ticker']}}">
                 <h5 class="card-title">Price: {{ticker["current_price"]}}</h5>
-                {% if ticker["pnl"]|int > -0.001 %}
+                {% if (ticker["pnl"]|float > 0) %}
                 <p class="card-text text-success">Change: {{ticker["price_change"]}} ({{ticker["pnl"]}}%)</p>
                 {% else %}
-                <p class="card-text text-danger">Change: {{ticker["price_change"]}} ({{ticker["pnl"]}}%)</p>
+                <p class="card-form text-danger">Change: {{ticker["price_change"]}} ({{ticker["pnl"]}}%)</p>
                 {% endif %}
+                <div class="mb-3">
+                    <div class="input-group">
+                        <span class="input-group-text"
+                              style="padding: 0.375rem 1.2rem 0.375rem 0.75rem; ">Current Size</span>
+                        <input type="text" class="form-control"
+                               aria-label="Current Size"
+                               readonly disabled
+                               value="{{ticker['size']}}">
+                    </div>
+                </div>
                 <div class="input-group mb-3">
-                    <span class="input-group-text" id="inputGroup-sizing-default">Position Size</span>
-                    <input type="number" class="form-control" aria-label="Input Position Size"
-                           aria-describedby="inputGroup-sizing-default" value="0" min="0" id="input-size">
+                    <span class="input-group-text" id="inputGroup-sizing-default"
+                          style="padding: 0.375rem 3rem 0.375rem 0.75rem;">Sell Size</span>
+                    <input type="number" class="form-control"
+                           aria-label="Input Position Size"
+                           aria-describedby="inputGroup-sizing-default"
+                           value="0" min="0">
                 </div>
                 <div class="mb-3">
                     <div class="input-group">
-                        <span class="input-group-text" style="padding: 0.375rem 1.2rem 0.375rem 0.75rem;">Total</span>
+                        <span class="input-group-text" style="padding: 0.375rem 1.5rem 0.375rem 0.75rem;">Total</span>
                         <span class="input-group-text" style="padding: 0.375rem 1.25rem 0.375rem 1.25rem;">$</span>
                         <input type="text" class="form-control"
-                               aria-label="Dollar amount (with dot and two decimal places)" readonly id="total-value"
+                               aria-label="Total Value" readonly
                                disabled>
                     </div>
-                    <div class="form-text" id="quote-card-addon-message"></div>
+                    <div class="form-text"></div>
                 </div>
                 <p class="card-text"></p>
-                <button class="btn btn-danger" id="cta-buy" disabled>CONFIRM SELL</button>
+                <button class="btn btn-danger cta-sell" id="cta-sell-{{ticker['ticker']}}" disabled>CONFIRM SELL
+                </button>
             </div>
         </div>
     </div>

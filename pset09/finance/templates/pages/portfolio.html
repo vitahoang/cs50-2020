@@ -5,7 +5,7 @@
 <div class="py-4 container text-center align-items-center">
     <div class="section">
         <!-- TODO: Loop through the database entries to display them in this table -->
-        <table class="table table-hover table-borderless">
+        <table class="table table-hover align-middle">
             <thead>
             <tr>
                 <th scope="col">#</th>
@@ -27,14 +27,14 @@
                 <td>{{ticker["size"]}}</td>
                 <td>{{ticker["entry_price"]}}</td>
                 <td>{{ticker["current_price"]}}</td>
-                {% if ticker["pnl"]|int > -0.001 %}
+                {% if ticker["pnl"]|float > 0 %}
                 <td class="text-success fw-bold">{{ticker["pnl"]}} %</td>
                 {% else %}
                 <td class="text-danger fw-bold">{{ticker["pnl"]}} %</td>
                 {% endif %}
                 <td class="fw-bold">{{ticker["current_value"]}}</td>
-                <td><a href="/buy?ticker={{ticker[" ticker"]}}" class="btn btn-primary">BUY</a>
-                    <a href="/sell?ticker={{ticker[" ticker"]}}" class="btn btn-danger">SELL</a>
+                <td><a href="/buy?ticker={{ticker['ticker']}}" class="btn btn-primary my-1">BUY</a>
+                    <a href="/sell" class="btn btn-danger my-1">SELL</a>
                 </td>
                 {% set ns.cur_balance = ns.cur_balance + ticker["current_value"] | int %}
             </tr>
@@ -49,6 +49,7 @@
                 <th></th>
                 <th>CASH</th>
                 <th>{{portfolio["cash"]}}</th>
+                <th></th>
             </tr>
             <tr>
                 <th></th>
@@ -58,6 +59,7 @@
                 <th></th>
                 <th>TOTAL</th>
                 <th>{{portfolio["total_portfolio_value"]}}</th>
+                <th></th>
             </tr>
             </tfoot>
         </table>

@@ -113,6 +113,7 @@ def sell():
     """Sell shares of stock"""
     if request.method == "GET":
         portfolio = get_portfolio_by_userid(db, int(session["user_id"]))
+        print(portfolio)
         return render_template("pages/sell.html", portfolio=portfolio)
 
 
