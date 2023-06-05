@@ -89,31 +89,30 @@ def update_portfolio(db, portfolio, txn):
 def get_portfolio_by_userid(db, user_id: int):
     try:
         total_current_value = 0
-        portfolios = db.execute("SELECT * FROM portfolios "
-                                "WHERE user_id = ? AND size != '0'", user_id)
-        if len(portfolios) == 0:
-            raise PortfolioNotFound
-        for ticker in portfolios:
-            q = get_quote(ticker["ticker"])
-            ticker["price_change"] = q['change']
+        positions = db.execute("SELECT * FROM portfolios "
+                               "WHERE user_id = ? AND size != '0.00'", user_id)
+        if len(positions) > 0:
+            for ticker in positions:
+                q = get_quote(ticker["ticker"])
+                ticker["price_change"] = q['change']
 
-            current_price = decimal2(q['currentPrice'])
-            ticker["current_price"] = moneyfmt(current_price)
+                current_price = decimal2(q['currentPrice'])
+                ticker["current_price"] = moneyfmt(current_price)
 
-            current_value = decimal2(ticker['size']) * current_price
-            ticker["current_value"] = moneyfmt(current_value, sep=',')
+                current_value = decimal2(ticker['size']) * current_price
+                ticker["current_value"] = moneyfmt(current_value, sep=',')
 
-            total_current_value += current_value
-            entry_value = decimal2(ticker["total_value"])
-            ticker["pnl"] = moneyfmt(
-                (current_value - entry_value) * 100 / entry_value)
+                total_current_value += current_value
+                entry_value = decimal2(ticker["total_value"])
+                ticker["pnl"] = moneyfmt(
+                    (current_value - entry_value) * 100 / entry_value)
 
         cash = get_balance(db, user_id)
-        portfolios = {"cash": moneyfmt(cash, sep=","),
-                      "tickers": portfolios,
-                      "total_portfolio_value":
-                          moneyfmt(cash + total_current_value, curr='$',
-                                   sep=',')}
-        return portfolios
+        portfolio = {"cash": moneyfmt(cash, sep=","),
+                     "positions": positions,
+                     "total_portfolio_value":
+                         moneyfmt(cash + total_current_value, curr='$',
+                                  sep=',')}
+        return portfolio
     except Exception as e:
         raise e

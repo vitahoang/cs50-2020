@@ -20,7 +20,8 @@
             </thead>
             <tbody>
             {% set ns = namespace(cur_balance = 0) %}
-            {% for ticker in portfolio["tickers"] %}
+            {% if portfolio["positions"] %}
+            {% for ticker in portfolio["positions"] %}
             <tr>
                 <th scope="row">{{ticker["id"]}}</th>
                 <td>{{ticker["ticker"]}}</td>
@@ -29,6 +30,8 @@
                 <td>{{ticker["current_price"]}}</td>
                 {% if ticker["pnl"]|float > 0 %}
                 <td class="text-success fw-bold">{{ticker["pnl"]}} %</td>
+                {% elif ticker["pnl"]|float == 0 %}
+                <td class="fw-bold"> -</td>
                 {% else %}
                 <td class="text-danger fw-bold">{{ticker["pnl"]}} %</td>
                 {% endif %}
@@ -39,6 +42,7 @@
                 {% set ns.cur_balance = ns.cur_balance + ticker["current_value"] | int %}
             </tr>
             {% endfor %}
+            {% endif %}
             </tbody>
             <tfoot>
             <tr>

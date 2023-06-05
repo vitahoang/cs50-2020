@@ -23,12 +23,14 @@ CREATE TABLE txns (
 	id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL UNIQUE,
 	created_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 	updated_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-	txn_type TEXT NOT NULL,
 	portfolio_id INTEGER NOT NULL,
+	user_id INTEGER NOT NULL,
+	txn_type TEXT NOT NULL,
 	size TEXT NOT NULL,
 	traded_price TEXT NOT NULL,
 	total_value TEXT NOT NULL,
 	pre_balance TEXT NOT NULL,
 	post_balance TEXT NOT NULL,
 	FOREIGN KEY(portfolio_id) REFERENCES portfolios(id)
+	FOREIGN KEY(user_id) REFERENCES users(id)
 );

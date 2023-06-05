@@ -1,6 +1,5 @@
 from flask import session
 
-import error
 from error import *
 
 from helpers import decimal2, moneyfmt
@@ -18,10 +17,11 @@ def sell_txn(db, portfolio, ask):
     try:
         post_balance = pre_balance + total_value
         txn_id = db.execute(
-            "INSERT INTO txns (txn_type, portfolio_id, size, "
+            "INSERT INTO txns (txn_type, user_id, portfolio_id, size, "
             "traded_price, total_value, pre_balance, post_balance) "
-            "VALUES (?, ?, ?, ?, ? ,? ,?)",
+            "VALUES (?, ?, ?, ?, ?, ? ,? ,?)",
             ask["txn_type"],
+            portfolio["user_id"],
             portfolio["id"],
             ask["size"],
             moneyfmt(traded_price),
@@ -53,10 +53,11 @@ def buy_txn(db, portfolio, bid):
         # add transaction
         post_balance = decimal2(session["user_balance"]) - total_value
         txn_id = db.execute(
-            "INSERT INTO txns (txn_type, portfolio_id, size, "
+            "INSERT INTO txns (txn_type, user_id, portfolio_id, size, "
             "traded_price, total_value, pre_balance, post_balance) "
-            "VALUES (?, ?, ?, ?, ? ,? ,?)",
+            "VALUES (?, ?, ?, ?, ?, ? ,? ,?)",
             bid["txn_type"],
+            portfolio["user_id"],
             portfolio["id"],
             bid["size"],
             moneyfmt(traded_price),
@@ -80,5 +81,17 @@ def get_txn_by_id(db, txn_id):
             "SELECT * FROM txns WHERE id = ?", txn_id
         )[0]
         return txn
+    except Exception as e:
+        raise e
+
+
+def get_txns_by_userid(db, user_id: str) -> list:
+    try:
+        txns = db.execute(
+            "SELECT txns.id,txns.created_date,txns.txn_type,"
+            "portfolios.ticker,txns.size,txns.traded_price,txns.total_value,txns.pre_balance,txns.post_balance FROM txns JOIN portfolios ON txns.portfolio_id=portfolios.id WHERE portfolios.user_id=?",
+            user_id
+        )
+        return txns
     except Exception as e:
         raise e

@@ -19,15 +19,6 @@ class LowPortfolio(HTTPError):
     }
 
 
-class PortfolioNotFound(HTTPError):
-    status_code = 200
-    message = "Your portfolio is empty"
-    extra_data = {
-        'error_type': 'Portfolio Error',
-        'error_code': '003',
-    }
-
-
 class BidZero(HTTPError):
     status_code = 400
     message = "Bid size cannot be zero"

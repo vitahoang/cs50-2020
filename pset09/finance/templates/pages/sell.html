@@ -1,10 +1,15 @@
 {% extends 'components/layout.html' %}
+{% if portfolio["positions"] %}
 {% set title = 'Sell' %}
+{% else %}
+{% set title = 'Your portfolio is empty' %}
+{% endif %}
 
 
 {% block main %}
 <div class="row justify-content-start mx-5 mb-5" id="card">
-    {% for ticker in portfolio["tickers"] %}
+    {% if portfolio["positions"] %}
+    {% for ticker in portfolio["positions"] %}
     <div class="col-lg-3 p-3">
         <div class="card shadow" id="sell-card-{{ticker['ticker']}}">
             <div class="card-header" id="card-header-{{ticker['ticker']}}">
@@ -19,29 +24,23 @@
                 {% endif %}
                 <div class="mb-3">
                     <div class="input-group">
-                        <span class="input-group-text"
-                              style="padding: 0.375rem 1.2rem 0.375rem 0.75rem; ">Current Size</span>
-                        <input type="text" class="form-control"
-                               aria-label="Current Size"
-                               readonly disabled
+                        <span class="input-group-text" style="padding: 0.375rem 1.2rem 0.375rem 0.75rem; ">Current
+                            Size</span>
+                        <input type="text" class="form-control" aria-label="Current Size" readonly disabled
                                value="{{ticker['size']}}">
                     </div>
                 </div>
                 <div class="input-group mb-3">
                     <span class="input-group-text" id="inputGroup-sizing-default"
                           style="padding: 0.375rem 3rem 0.375rem 0.75rem;">Sell Size</span>
-                    <input type="number" class="form-control"
-                           aria-label="Input Position Size"
-                           aria-describedby="inputGroup-sizing-default"
-                           value="0" min="0">
+                    <input type="number" class="form-control" aria-label="Input Position Size"
+                           aria-describedby="inputGroup-sizing-default" value="0" min="0">
                 </div>
                 <div class="mb-3">
                     <div class="input-group">
                         <span class="input-group-text" style="padding: 0.375rem 1.5rem 0.375rem 0.75rem;">Total</span>
                         <span class="input-group-text" style="padding: 0.375rem 1.25rem 0.375rem 1.25rem;">$</span>
-                        <input type="text" class="form-control"
-                               aria-label="Total Value" readonly
-                               disabled>
+                        <input type="text" class="form-control" aria-label="Total Value" readonly disabled>
                     </div>
                     <div class="form-text"></div>
                 </div>
@@ -51,6 +50,8 @@
         </div>
     </div>
     {% endfor %}
+    {% endif %}
+
 </div>
 
 {% endblock %}

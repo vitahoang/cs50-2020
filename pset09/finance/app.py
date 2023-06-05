@@ -9,7 +9,7 @@ import error
 from error import *
 from helpers import apology, usd
 from modules.tickers import search_ticker, get_quote
-from modules.txns import buy_txn, sell_txn
+from modules.txns import buy_txn, sell_txn, get_txns_by_userid
 from modules.users import login_required, get_balance
 from modules.portfolios import get_user_portfolio_by_ticker, \
     create_portfolio, get_portfolio_by_userid
@@ -44,8 +44,6 @@ def after_request(response):
 def index():
     """Show portfolio of stocks"""
     portfolio = get_portfolio_by_userid(db, int(session["user_id"]))
-    print("index:")
-    print(portfolio)
     return render_template("pages/portfolio.html", portfolio=portfolio)
 
 
@@ -140,7 +138,8 @@ def sell():
 @login_required
 def history():
     """Show history of transactions"""
-    return apology("TODO")
+    txns = get_txns_by_userid(db, session["user_id"])
+    return render_template("pages/history.html", txns=txns)
 
 
 @app.route("/login", methods=["GET", "POST"])
