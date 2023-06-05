@@ -44,7 +44,7 @@ def after_request(response):
 def index():
     """Show portfolio of stocks"""
     portfolio = get_portfolio_by_userid(db, int(session["user_id"]))
-    return render_template("pages/portfolio.html", portfolio=portfolio)
+    return render_template("pages/index.html", portfolio=portfolio)
 
 
 @app.route("/quote", methods=["GET"])

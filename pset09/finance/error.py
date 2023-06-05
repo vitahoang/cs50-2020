@@ -1,7 +1,7 @@
-from apiflask import HTTPError
+from werkzeug.exceptions import HTTPException
 
 
-class LowBalance(HTTPError):
+class LowBalance(HTTPException):
     status_code = 400
     message = "Your balance is too low for this call"
     extra_data = {
@@ -10,7 +10,7 @@ class LowBalance(HTTPError):
     }
 
 
-class LowPortfolio(HTTPError):
+class LowPortfolio(HTTPException):
     status_code = 400
     message = "Your portfolio is too low for this call"
     extra_data = {
@@ -19,7 +19,7 @@ class LowPortfolio(HTTPError):
     }
 
 
-class BidZero(HTTPError):
+class BidZero(HTTPException):
     status_code = 400
     message = "Bid size cannot be zero"
     extra_data = {
