@@ -1,0 +1,44 @@
+{% extends 'components/layout.html' %}
+{% if txns %}
+{% set title = 'History' %}
+{% else %}
+{% set title = 'Your history is empty' %}
+{% endif %}
+
+
+{% block main %}
+<div class="py-4 container text-center align-items-center">
+    <div class="section">
+        <table class="table table-hover align-middle">
+            <thead>
+            <tr>
+                <th scope="col">Txn ID</th>
+                <th scope="col">Time</th>
+                <th scope="col">Type</th>
+                <th scope="col">Ticker</th>
+                <th scope="col">Traded Price</th>
+                <th scope="col">Total Value</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% if txns %}
+            {% for txn in txns %}
+            <tr>
+                <th>{{txn["id"]}}</th>
+                <th>{{txn["created_date"]}}</th>
+                {% if txn["txn_type"] == 'buy' %}
+                <td class="text-success">{{txn["txn_type"]}}</td>
+                {% else %}
+                <td class="text-danger">{{txn["txn_type"]}}</td>
+                {% endif %}
+                <td>{{txn["ticker"]}}</td>
+                <td>{{txn["traded_price"]}}</td>
+                <td>{{txn["total_value"]}}</td>
+            </tr>
+            {% endfor %}
+            {% endif %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
