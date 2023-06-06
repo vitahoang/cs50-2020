@@ -2,15 +2,26 @@
 {% set title = 'Register' %}
 
 {% block main %}
-<form action="/register" method="post">
-    <div class="mb-3">
-        <input autocomplete="off" autofocus class="form-control mx-auto w-auto" id="username" name="username"
-               placeholder="Username" type="text" required>
-    </div>
-    <div class="mb-3">
-        <input class="form-control mx-auto w-auto" id="password" name="password" placeholder="Password" type="password"
-               required minlength="5">
-    </div>
-    <button class="btn btn-primary" type="submit">Register</button>
-</form>
+<main class="container py-5 text-center">
+
+
+    <form action="/register" method="post" data-np-autofill-type="register" data-np-checked="1" data-np-watching="1">
+        <div class="mb-3">
+            <input autocomplete="off" autofocus="" class="form-control mx-auto w-auto" name="username"
+                   placeholder="Username" type="text">
+        </div>
+        <div class="mb-3">
+            <input class="form-control mx-auto w-auto" name="password" placeholder="Password" type="password"
+                   data-np-autofill-type="newPassword" data-np-uid="97187db0-17c7-4648-84f4-9d2fb54086e6">
+        </div>
+        <div class="mb-3">
+            <input class="form-control mx-auto w-auto" name="confirmation" placeholder="Password (again)"
+                   type="password" data-np-autofill-type="newPassword"
+                   data-np-uid="2ccea262-2ff7-4a42-a0da-d2b7372ccddd">
+        </div>
+        <button class="btn btn-primary" type="submit">Register</button>
+    </form>
+
+
+</main>
 {% endblock %}

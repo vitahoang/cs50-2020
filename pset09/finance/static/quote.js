@@ -1,6 +1,7 @@
 window.addEventListener('load', function() {
   sessionStorage.clear();
   const input = document.querySelector('input');
+  const bntQuote = document.getElementById('button-quote');
   let typingTimer;
 
   // setup an eventListener that only calls after finished typing
@@ -37,45 +38,22 @@ window.addEventListener('load', function() {
           return;
         }
       }
-
-      const response = await fetch('/quote?q=' + input.value + '&scope=quote');
-      const quote = await response.json();
-      sessionStorage.setItem(sessionStorage.length, input.value);
-
-      // add a quote card to html
-      const card = document.getElementById('card');
-      card.innerHTML += quoteCard;
-      btn = document.getElementsByClassName('btn'); // get new btn
-
-      // add quote's info to the card
-      const cardHeader = card.lastElementChild
-          .firstElementChild.firstElementChild;
-      cardHeader.firstElementChild.innerHTML = quote['symbol'];
-      let cardBody = cardHeader.nextElementSibling.firstElementChild;
-      cardBody.innerHTML = quote['currentPrice'];
-      cardBody = cardBody.nextElementSibling;
-      cardBody.innerHTML = [
-        'Change: ',
-        quote['change'],
-        ' (',
-        quote['changePercent'],
-        ')',
-      ].join('');
-      cardBody = cardBody.nextElementSibling;
-      cardBody.innerHTML = ['Open: ', quote['open']].join('');
-      cardBody = cardBody.nextElementSibling;
-      cardBody.innerHTML =
-      // eslint-disable-next-line new-cap
-      ['Volume: ', Intl.NumberFormat().format(quote['volume'])].join('');
-      cardBody = cardBody.nextElementSibling;
-      clickBuySell(cardBody, quote['symbol']);
-      cardBody = cardBody.nextElementSibling;
-      clickBuySell(cardBody, quote['symbol']);
-    }
+      getQuote(input.value);
+    };
   });
-});
 
-/**
+  // click to get ticker's info
+  bntQuote.addEventListener('click', async function(e) {
+    // check if ticker has been searched before
+    for (let id = 0; id < sessionStorage.length; id++) {
+      if (sessionStorage.getItem(sessionStorage.key(id)) == input.value) {
+        return;
+      }
+    }
+    getQuote(input.value);
+  });
+
+  /**
 * Attaches a click event listener to the provided button element and sets
 its href attribute based on its inner text.
 *
@@ -86,12 +64,49 @@ the value of the href attribute.
 *
 * @return {void}
 */
-function clickBuySell(btn, ticker) {
-  btn.addEventListener('click', function() {
-    if (btn.innerText == 'BUY') {
-      this.setAttribute('href', ['/buy?ticker=', ticker].join(''));
-    } else {
-      this.setAttribute('href', ['/sell?ticker=', ticker].join(''));
-    }
-  });
-}
+  function clickBuySell(btn, ticker) {
+    btn.addEventListener('click', function() {
+      if (btn.innerText == 'BUY') {
+        this.setAttribute('href', ['/buy?ticker=', ticker].join(''));
+      } else {
+        this.setAttribute('href', ['/sell?ticker=', ticker].join(''));
+      }
+    });
+  }
+
+
+  // eslint-disable-next-line require-jsdoc
+  async function getQuote(inputValue) {
+    const response = await fetch('/quote?q=' + inputValue + '&scope=quote');
+    const quote = await response.json();
+    sessionStorage.setItem(sessionStorage.length, inputValue);
+
+    // add a quote card to html
+    const card = document.getElementById('card');
+    card.innerHTML += quoteCard;
+
+    // add quote's info to the card
+    const cardHeader = card.lastElementChild
+        .firstElementChild.firstElementChild;
+    cardHeader.firstElementChild.innerHTML = quote['ticker'];
+    let cardBody = cardHeader.nextElementSibling.firstElementChild;
+    cardBody.innerHTML = quote['currentPrice'];
+    cardBody = cardBody.nextElementSibling;
+    cardBody.innerHTML = [
+      'Change: ',
+      quote['change'],
+      ' (',
+      quote['changePercent'],
+      ')',
+    ].join('');
+    cardBody = cardBody.nextElementSibling;
+    cardBody = cardBody.nextElementSibling;
+    cardBody.innerHTML = ['Volume: ',
+      Intl.NumberFormat().format(quote['volume'])]
+        .join('');
+    cardBody = cardBody.nextElementSibling;
+    clickBuySell(cardBody, quote['symbol']);
+    cardBody = cardBody.nextElementSibling;
+    clickBuySell(cardBody, quote['symbol']);
+  }
+});

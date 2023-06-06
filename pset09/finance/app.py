@@ -2,12 +2,12 @@ import json
 
 from cs50 import SQL
 from flask import Flask, flash, redirect, render_template, request, session, \
-    make_response, jsonify
+    make_response, jsonify, url_for
 from werkzeug.security import check_password_hash, generate_password_hash
 
 import error
 from error import *
-from helpers import apology, usd
+from helpers import apology, usd, decimal2
 from modules.tickers import search_ticker, get_quote
 from modules.txns import buy_txn, sell_txn, get_txns_by_userid
 from modules.users import login_required, get_balance
@@ -47,25 +47,28 @@ def index():
     return render_template("pages/index.html", portfolio=portfolio)
 
 
-@app.route("/quote", methods=["GET"])
+@app.route("/quote", methods=["GET", "POST"])
 @login_required
 def quote():
     """search stock quote."""
-    q = request.args.get("q")
-    scope = request.args.get("scope")
-    if q and scope == "ticker":
-        ticker_list = search_ticker(q)
-        if ticker_list:
-            return make_response(ticker_list, 200)
-        else:
-            return make_response(json.dumps({"message": "No Match"}), 404)
-
-    if q and scope == "quote":
+    if request.method == "GET":
+        q = request.args.get("q")
+        scope = request.args.get("scope")
+        if q and scope == "ticker":
+            ticker_list = search_ticker(q)
+            if ticker_list:
+                return make_response(ticker_list, 200)
+            else:
+                return make_response(json.dumps({"message": "No Match"}), 404)
+    if request.method == "POST":
+        if not request.form.get('symbol'):
+            return apology("Ticker cannot be blank", 400)
+        q = request.form.get('symbol')
         _quote = get_quote(q)
         if _quote:
-            return make_response(_quote, 200)
+            return render_template("pages/quote.html", quote=_quote)
         else:
-            return make_response("No Match", 404)
+            return apology("No Match", 400)
 
     return render_template("pages/quote.html")
 
@@ -77,24 +80,31 @@ def buy():
         return render_template("pages/buy.html")
 
     if request.method == "POST":
-        bid = request.json
-        print(bid)
-        if bid["size"] == 0:
-            raise BidZero
+        size = request.form.get("shares")
+        ticker = request.form.get('symbol')
+        if not get_quote(ticker):
+            return apology("Invalid Symbol", 400)
+        print(size)
+        if not decimal2(size):
+            return apology("Non-numeric Share", 400)
+        if decimal2(size) < 0:
+            return apology("Negative Share", 400)
+        if decimal2(size) % 1 != 0:
+            return apology("Fractional Share", 400)
 
         # update user balance
         get_balance(db, session["user_id"])
 
         # search for portfolio
         portfolio = get_user_portfolio_by_ticker(db, session["user_id"],
-                                                 bid["ticker"])
+                                                 ticker)
 
         # if portfolio doesn't exist, create a new one
         if len(portfolio) == 0:
             create_portfolio(db, session["user_id"],
-                             bid["ticker"])
+                             ticker)
             portfolio = get_user_portfolio_by_ticker(db, session["user_id"],
-                                                     bid["ticker"])
+                                                     ticker)
 
         # portfolio should be unique
         if len(portfolio) != 1:
@@ -102,7 +112,7 @@ def buy():
 
         # access the portfolio object
         portfolio = portfolio[0]
-        txn = buy_txn(db, portfolio, bid)
+        txn = buy_txn(db, portfolio, size)
         return make_response(jsonify(txn=txn), 200)
 
 
@@ -114,24 +124,17 @@ def sell():
         portfolio = get_portfolio_by_userid(db, int(session["user_id"]))
         return render_template("pages/sell.html", portfolio=portfolio)
     if request.method == "POST":
-        ask = request.json
+        ticker = request.form.get("symbol")
+        size = request.form.get("shares")
         portfolio = get_user_portfolio_by_ticker(
-            db, int(session["user_id"]), ask["ticker"]
+            db, int(session["user_id"]), ticker
         )
+        print(portfolio)
         if len(portfolio) == 0:
-            raise error.LowPortfolio
-        sell_txn(db, portfolio[0], ask)
-
-        # Update size of the portfolio after selling
-        portfolio = get_user_portfolio_by_ticker(
-            db, int(session["user_id"]), ask["ticker"]
-        )
-        return make_response(
-            jsonify(message="Order executed successfully",
-                    order=ask,
-                    updated_portfolio=portfolio[0]),
-            200
-        )
+            return apology("Portfolio not found", 400)
+        sell_txn(db, portfolio[0], size)
+        flash("Sold!", "primary")
+        return redirect("/")
 
 
 @app.route("/history")
@@ -199,18 +202,33 @@ def logout():
 @app.route("/register", methods=["GET", "POST"])
 def register():
     """Register user"""
-    username = request.form.get("username")
-    password = request.form.get("password")
-    if request.method == "POST":
-        if len(db.execute("SELECT username FROM users WHERE username LIKE ?",
-                          username)) != 0:
-            return flash("username has been taken", "error")
+    if request.method == "GET":
+        return render_template("pages/register.html")
+
+    elif request.method == "POST":
+        username = request.form.get("username")
+        password = request.form.get("password")
+        confirmation = request.form.get("confirmation")
+        if (username == "") or (password == "") or (confirmation == ""):
+            return apology("Fields cannot be empty", 400)
+        if password != confirmation:
+            return apology("The password confirmation does not match", 400)
+
         password_hash = generate_password_hash(password)
-        if db.execute("INSERT INTO users (username, hash) VALUES (?,?)",
-                      username, password_hash):
+        if len(db.execute(
+                "SELECT username FROM users WHERE username LIKE ?",
+                (username,)
+        )) != 0:
+            return apology("Username has been taken", 400)
+
+        try:
+            db.execute("INSERT INTO users (username, hash) VALUES (?,?)",
+                       str(username), password_hash)
             flash("Your account has been created successfully!",
                   "success")
-            return render_template("pages/login.html")
+            return redirect(url_for("login"))
+        except Exception as e:
+            raise e
     else:
         return render_template("pages/register.html")
 

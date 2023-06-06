@@ -6,7 +6,7 @@ from modules.tickers import get_quote
 from modules.users import get_balance
 
 
-def get_user_portfolio_by_ticker(db, user_id, ticker) -> dict:
+def get_user_portfolio_by_ticker(db, user_id, ticker) -> list:
     """
     Retrieves the portfolio with the specified user ID and ticker symbol
     from the database.

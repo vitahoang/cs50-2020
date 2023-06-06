@@ -3,8 +3,14 @@
 
 
 {% block main %}
-<div class="mx-5 mb-5" id="search-box">
-    <input class="form-control" list="ticket-list" id="ticker-search" autofocus placeholder="Find your next 🐂 & 🧸">
+<div class="text-center container" id="search-box">
+    <form action="/quote" method="post" class="input-group mb-3 row" data-np-autofill-type="other" data-np-checked="1"
+          data-np-watching="1">
+        <input type="text" class="form-control col-6" list="ticket-list" placeholder="Find your next 🐂 & 🧸"
+               aria-label="Recipient's username" aria-describedby="button-addon2" id="ticker-search" name="symbol"
+               autofocus>
+        <button class="btn btn-primary col-2" type="submit" id="button-quote">Quote</button>
+    </form>
     <datalist id="ticket-list">
         <option value="AAPL">
         <option value="AMZN">
@@ -14,6 +20,25 @@
     </datalist>
 </div>
 <div class="row justify-content-start mx-5 mb-5" id="card">
+    {% if quote %}
+    <div class="col-lg-3 p-3">
+        <div class="card shadow" id="sell-card-{{quote['ticker']}}">
+            <div class="card-header" id="card-header-{{quote['ticker']}}">
+                <h4>{{quote["ticker"]}}</h4>
+            </div>
+            <div class="card-body" id="card-body-{{quote['ticker']}}">
+                <h5 class="card-title">Price: {{quote["currentPrice"]}}</h5>
+                {% if (quote["change"]|float > 0) %}
+                <p class="card-text text-success">Change: {{quote["change"]}} ({{quote["changePercent"]}})</p>
+                {% else %}
+                <p class="card-form text-danger">Change: {{quote["change"]}} ({{quote["changePercent"]}})</p>
+                {% endif %}
+                <a href="/buy?ticker={{quote['ticker']}}" class="btn btn-primary">BUY</a>
+                <a href="/sell" class="btn btn-danger">SELL</a>
+            </div>
+        </div>
+    </div>
+    {% endif %}
 </div>
 
 {% endblock %}

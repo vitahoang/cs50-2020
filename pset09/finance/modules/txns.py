@@ -8,10 +8,10 @@ from modules.tickers import get_quote
 from modules.users import get_balance, set_balance
 
 
-def sell_txn(db, portfolio, ask):
+def sell_txn(db, portfolio, size):
     traded_price = decimal2(get_quote(portfolio["ticker"])["currentPrice"])
-    total_value = traded_price * decimal2(ask["size"])
-    if portfolio["size"] < ask["size"]:
+    total_value = traded_price * decimal2(size)
+    if portfolio["size"] < size:
         return LowPortfolio
     pre_balance = get_balance(db, portfolio["user_id"])
     try:
@@ -20,10 +20,10 @@ def sell_txn(db, portfolio, ask):
             "INSERT INTO txns (txn_type, user_id, portfolio_id, size, "
             "traded_price, total_value, pre_balance, post_balance) "
             "VALUES (?, ?, ?, ?, ?, ? ,? ,?)",
-            ask["txn_type"],
+            "sell",
             portfolio["user_id"],
             portfolio["id"],
-            ask["size"],
+            size,
             moneyfmt(traded_price),
             moneyfmt(total_value),
             moneyfmt(pre_balance),
@@ -39,9 +39,9 @@ def sell_txn(db, portfolio, ask):
         raise e
 
 
-def buy_txn(db, portfolio, bid):
+def buy_txn(db, portfolio, size):
     traded_price = decimal2(get_quote(portfolio["ticker"])["currentPrice"])
-    total_value = traded_price * decimal2(bid["size"])
+    total_value = traded_price * decimal2(size)
     pre_balance = get_balance(db, portfolio["user_id"])
 
     # end if bid size > balance
@@ -56,10 +56,10 @@ def buy_txn(db, portfolio, bid):
             "INSERT INTO txns (txn_type, user_id, portfolio_id, size, "
             "traded_price, total_value, pre_balance, post_balance) "
             "VALUES (?, ?, ?, ?, ?, ? ,? ,?)",
-            bid["txn_type"],
+            "buy",
             portfolio["user_id"],
             portfolio["id"],
-            bid["size"],
+            size,
             moneyfmt(traded_price),
             moneyfmt(total_value),
             moneyfmt(pre_balance),
