@@ -103,10 +103,9 @@ def superm2(image):
         pos_x, pos_y = pcol.get_offsets()[max_pos]
         plt.text(pos_x, pos_y, max_, color='w')
         print(round(float(pos_x), 2), round(float(pos_y), 2))
-        plt.show()
-        return pos_x, pos_y
+        return round(float(pos_x), 2), round(float(pos_y), 2)
 
-    hex()
+    return hex()
 
     # draw(2.8, 2.4)
     # cv2.imshow('a', image); cv2.waitKey(0);
@@ -123,12 +122,13 @@ def draw(image, r, theta):
             x = int((r - y * np.sin(theta)) / np.cos(theta))
             if 0 <= x < len(image[y]):
                 image[y][x] = 255
+    return image
 
 
 def main():
     argc = len(sys.argv)
     if not (argc == 2 or argc == 4 or argc == 5):
-        print("Usage: python3 detect.py IMAGE [r] [theta]")
+        print("Usage: python3 symetry.py IMAGE [r] [theta]")
         return
     if argc == 2:
         superm2(cv2.imread(sys.argv[1], 0))
@@ -141,7 +141,3 @@ def main():
         image = cv2.imread(sys.argv[1], 0)
         draw(image, float(sys.argv[2]), float(sys.argv[3]))
         cv2.imwrite("{}".format(sys.argv[4]), image)
-
-
-if __name__ == "__main__":
-    main()
