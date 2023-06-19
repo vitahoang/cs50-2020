@@ -4,7 +4,7 @@ import cv2
 import numpy as np
 import pyautogui
 
-from main import IMAGE_FOLDER
+from resources import FolderPath
 from symetry import superm2, draw
 
 screenWidth, screenHeight = pyautogui.size()
@@ -25,7 +25,7 @@ print(img.shape)
 def crop_reset_captcha(ss):
     """crop the captcha image"""
     captcha = ss[785:1050, 1310:1570]
-    captcha_image_name = IMAGE_FOLDER + \
+    captcha_image_name = FolderPath.IMAGE + \
                          ss_name.split(".")[0] + \
                          "-crop" + \
                          "." + ss_name.split(".")[1]
@@ -39,7 +39,7 @@ def solve_reset_captcha(captcha_img):
     r, theta = superm2(captcha_img)
     # Draw symetry line
     sym_image = draw(captcha_img, r, theta)
-    sym_image_name = IMAGE_FOLDER + ss_name.split(".")[0] + \
+    sym_image_name = FolderPath.IMAGE + ss_name.split(".")[0] + \
                      "-sym" + \
                      "." + \
                      ss_name.split(".")[1]

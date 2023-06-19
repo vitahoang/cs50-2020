@@ -1,17 +1,17 @@
-import sys
 import time
 
 import cv2
 import pyautogui
 
+from resources import FolderPath, Item
 from utils import process_running
 
-ITEM_FOLDER = "/Users/vitahoang/Code/cs50-2020/final/item/"
-START_ITEM = "start.png"
-VIP = "vip.png"
-VIP5 = "vip5.png"
-C_MAGIC = "character-magic.png"
-C_ENTER = "character-enter.png"
+
+def click(x, y):
+    pyautogui.moveTo(x, y)
+    time.sleep(2)
+    pyautogui.click()
+    time.sleep(1)
 
 
 def open_app():
@@ -27,38 +27,53 @@ def open_app():
         return False
 
 
-def click_item(item: str, wait=3):
-    img_path = ITEM_FOLDER + item
-    item_img = cv2.imread(img_path)
-    item_btn = None
+def find_item(item, wait=3):
+    item_path = FolderPath.ITEM + item
+    item_img = cv2.imread(item_path)
+    item_loc = None
     for i in range(3):
         time.sleep(wait)
-        item_btn = pyautogui.locateOnScreen(item_img)
-        if item_btn:
-            print(item_btn)
-            break
-    if item_btn is None:
-        print(item + " button not found")
+        item_loc = pyautogui.locateOnScreen(item_img)
+        if item_loc: break
+    if item_loc is None:
+        print(item + "button not found")
         return False
-    start_btn_x, start_btn_y = pyautogui.center(item_btn)
-    pyautogui.moveTo(start_btn_x / 2, start_btn_y / 2)
-    pyautogui.click()
+    loc_x, loc_y = pyautogui.center(item_loc)
+    return {"x": loc_x / 2, "y": loc_y / 2}
+
+
+def click_item(item: str, wait=3):
+    item_loc = find_item(item, wait)
+    click(item_loc["x"], item_loc["y"])
     return True
 
 
-def choose_map(map: str):
-    pass
+def first_reset_farm():
+    click_item(Item.SPOT)
+    click_item(Item.SPOT5)
+    return True
 
 
-if open_app() is False:
-    sys.exit("Open App Failed")
-if click_item(START_ITEM) is False:
-    sys.exit("Start Failed")
-if click_item(VIP) is False:
-    sys.exit("Join Sever Failed")
-if click_item(VIP5, 1) is False:
-    sys.exit("Join Sever Failed")
-if click_item(C_MAGIC) is False:
-    sys.exit("Select Character Failed")
-if click_item(C_ENTER, 1) is False:
-    sys.exit("Select Character Failed")
+def check_screen(screen: str):
+    if screen == "start":
+        if find_item(Item.START): return True
+    if screen == "choose_server":
+        if find_item(Item.VIP): return True
+    if screen == "choose_character":
+        if find_item(Item.C_MAGIC): return True
+    return False
+
+
+def move_character(x=1, y=1):
+    if x > 0:
+        for i in range(x):
+            click(814, 468)
+    if x < 0:
+        for i in range(abs(x)):
+            click(646, 362)
+    if y > 0:
+        for i in range(x):
+            click(803, 348)
+    if y < 0:
+        for i in range(abs(x)):
+            click(642, 643)

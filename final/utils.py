@@ -1,3 +1,5 @@
+import mss
+import numpy as np
 import psutil
 
 
@@ -19,3 +21,12 @@ def process_running(process_name):
                 psutil.ZombieProcess):
             pass
     return False
+
+
+def screenshot(monitor_number: int):
+    with mss.mss() as sct:
+        monitor = sct.monitors[monitor_number]
+        # Grab the data
+        ss = sct.grab(monitor)
+        np_img = np.array(ss)
+    return np_img
