@@ -1,6 +1,7 @@
 import mss
 import numpy as np
 import psutil
+import pyautogui
 
 
 def process_running(process_name):
@@ -30,3 +31,10 @@ def screenshot(monitor_number: int):
         ss = sct.grab(monitor)
         np_img = np.array(ss)
     return np_img
+
+
+def screen_info():
+    screen_width, screen_height = pyautogui.size()
+    print(screen_width, screen_height)
+    mouse_x, mouse_y = pyautogui.position()
+    print(mouse_x, mouse_y)
