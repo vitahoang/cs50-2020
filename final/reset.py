@@ -7,10 +7,6 @@ import pyautogui
 from resources import FolderPath
 from symetry import superm2, draw
 
-screenWidth, screenHeight = pyautogui.size()
-print(screenWidth, screenHeight)
-currentMouseX, currentMouseY = pyautogui.position()
-print(currentMouseY, currentMouseY)
 
 ss = pyautogui.screenshot()
 

@@ -1,9 +1,11 @@
 """Provide Methods to control"""
 import time
+from tkinter import Tk
 
 import cv2
 import pyautogui
 
+from error import raise_err
 from resources import FolderPath, Item
 from utils import process_running
 
@@ -23,6 +25,10 @@ def open_app():
     pyautogui.write(["m", "u", "a", "w", "a", "y"])
     pyautogui.press('enter')
     if process_running("MuAwaY"):
+        root = Tk()
+        root.focus_set()
+        if root.attributes('-fullscreen'):
+
         return True
     print("Cannot Open App!")
     return False
@@ -31,6 +37,7 @@ def open_app():
 def find_item(item, wait=3):
     """find item given its image then return its location on screen"""
     item_path = FolderPath.ITEM + item
+    print(item_path)
     item_img = cv2.imread(item_path)
     item_loc = None
     for _ in range(3):
@@ -39,17 +46,19 @@ def find_item(item, wait=3):
         if item_loc:
             break
     if item_loc is None:
-        print(item + "button not found")
+        raise_err("button not found")
         return False
     loc_x, loc_y = pyautogui.center(item_loc)
     return {"x": loc_x / 2, "y": loc_y / 2}
 
 
-def click_item(item: str, wait=3):
+def click_item(item: str, wait=4):
     """click to an item given its image"""
     item_loc = find_item(item, wait)
-    click(item_loc["x"], item_loc["y"])
-    return True
+    if item_loc:
+        click(item_loc["x"], item_loc["y"])
+        return True
+    return False
 
 
 def first_reset_farm():
