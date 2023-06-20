@@ -1,52 +1,38 @@
-from datetime import datetime
-
-import cv2
-import numpy as np
-import pyautogui
-
-from resources import FolderPath
+from control import click_item
+from resources import ItemLoc
 from symetry import superm2, draw
-
-
-ss = pyautogui.screenshot()
-
-# convert image to cv2 image object and show image shape
-img_name = "SCR-20230616.jpeg"
-ss_name = 'ss_' + datetime.now().strftime("%y%m%d_%H%M%S%f") + \
-          '.png'
-img = np.array(ss)
-print(img.shape)
+from utils import screenshot, save_img, show_img
 
 
 def crop_reset_captcha(ss):
     """crop the captcha image"""
-    captcha = ss[785:1050, 1310:1570]
-    captcha_image_name = FolderPath.IMAGE + \
-                         ss_name.split(".")[0] + \
-                         "-crop" + \
-                         "." + ss_name.split(".")[1]
-
-    cv2.imwrite(captcha_image_name, captcha)
+    captcha = ss[790:1070, 1320:1570]
     return captcha
 
 
 # Calculate r, theta
-def solve_reset_captcha(captcha_img):
-    r, theta = superm2(captcha_img)
+def solve_captcha(save=True):
+    r, theta = float, float
+    captcha = None
+
+    while theta != 0.0:
+        captcha = crop_reset_captcha(screenshot())
+        # estimate_hsv(captcha)
+        # captcha_obj = extract_object(captcha, show=True)
+        r, theta = superm2(captcha)
+        print(r, theta)
+        if theta == 0.0:
+            click_item(loc=ItemLoc.RS_SEND)
+        click_item(loc=ItemLoc.RS_RIGHT)
+    draw(captcha, r, theta)
+    show_img(captcha)
     # Draw symetry line
-    sym_image = draw(captcha_img, r, theta)
-    sym_image_name = FolderPath.IMAGE + ss_name.split(".")[0] + \
-                     "-sym" + \
-                     "." + \
-                     ss_name.split(".")[1]
-
-    if check_captcha_result():
-        return True
-    cv2.imwrite(sym_image_name, sym_image)
-    cv2.imshow("symetry", sym_image)
-    return False
+    if save:
+        sym_image = draw(captcha, r, theta)
+        save_img(image=sym_image, name="captcha", suffix="-sym")
+    return True
 
 
-def check_captcha_result():
+def captcha_result():
     """TODO"""
     return True

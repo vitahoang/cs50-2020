@@ -25,10 +25,6 @@ def open_app():
     pyautogui.write(["m", "u", "a", "w", "a", "y"])
     pyautogui.press('enter')
     if process_running("MuAwaY"):
-        root = Tk()
-        root.focus_set()
-        if root.attributes('-fullscreen'):
-
         return True
     print("Cannot Open App!")
     return False
@@ -37,7 +33,7 @@ def open_app():
 def find_item(item, wait=3):
     """find item given its image then return its location on screen"""
     item_path = FolderPath.ITEM + item
-    print(item_path)
+    print(f"Finding: {item_path}")
     item_img = cv2.imread(item_path)
     item_loc = None
     for _ in range(3):
@@ -52,11 +48,15 @@ def find_item(item, wait=3):
     return {"x": loc_x / 2, "y": loc_y / 2}
 
 
-def click_item(item: str, wait=4):
+def click_item(item="", loc=None, wait=4):
     """click to an item given its image"""
-    item_loc = find_item(item, wait)
-    if item_loc:
-        click(item_loc["x"], item_loc["y"])
+    if item:
+        item_loc = find_item(item, wait)
+        if item_loc:
+            click(item_loc["x"], item_loc["y"])
+            return True
+    if loc:
+        click(loc["x"], loc["y"])
         return True
     return False
 

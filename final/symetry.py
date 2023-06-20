@@ -102,7 +102,6 @@ def superm2(image):
         # return the coordination of the bin which act as (r,theta)
         pos_x, pos_y = pcol.get_offsets()[max_pos]
         plt.text(pos_x, pos_y, max_, color='w')
-        print(round(float(pos_x), 2), round(float(pos_y), 2))
         return round(float(pos_x), 2), round(float(pos_y), 2)
 
     return hex()
