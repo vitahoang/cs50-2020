@@ -1,6 +1,11 @@
+import getpass
+
+user_name = getpass.getuser()
+
+
 class FolderPath:
-    ITEM = "/Users/vitahoang/Code/cs50-2020/final/item/"
-    IMAGE = "/Users/vitahoang/Code/cs50-2020/final/image/"
+    ITEM = "/Users/" + user_name + "/Code/cs50-2020/final/item/"
+    IMAGE = "/Users/" + user_name + "/Code/cs50-2020/final/image/"
 
 
 class Item:
