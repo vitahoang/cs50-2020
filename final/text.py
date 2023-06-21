@@ -2,6 +2,8 @@
 import cv2
 import pytesseract
 
+from resources import FolderPath
+
 # Mention the installed location of Tesseract-OCR in your system
 pytesseract.pytesseract.tesseract_cmd = \
     "/opt/homebrew/Cellar/tesseract/5.3.1_1/bin/tesseract"
@@ -53,14 +55,41 @@ def extract_text_from(img):
         cropped = im2[y:y + h, x:x + w]
 
         # Open the file in append mode
-        _file = open("recognized.txt", "a")
+        # _file = open("recognized.txt", "a")
 
         # Apply OCR on the cropped image
         text = pytesseract.image_to_string(cropped)
 
         # Appending the text into file
-        _file.write(text)
-        _file.write("\n")
+        # _file.write(text)
+        # _file.write("\n")
 
         # Close the file
-        _file.close()
+        # _file.close()
+        return text
+
+
+def cur_map_loc(image):
+    info = extract_text_from(image).replace("\n", "").split(" ")
+    _map = {
+        "map_name": info[0],
+        "x": info[2],
+        "y": info[3]
+    }
+    print(_map)
+    return _map
+
+
+def cur_char_lvl(image):
+    info = extract_text_from(image).replace("\n", "").split(" ")
+    _char = {
+        "character_name": info[0],
+        "lvl": info[2]
+    }
+    print(_char)
+    return _char
+
+
+cur_map_loc(cv2.imread(FolderPath.SAMPLE + "map-info.png"))
+
+cur_char_lvl(cv2.imread(FolderPath.SAMPLE + "char-lvl.png"))
