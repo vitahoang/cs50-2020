@@ -1,6 +1,17 @@
 import cv2
 import numpy as np
 
+from resources import FolderPath
+
+
+def upscale(image):
+    sr = cv2.dnn_superres.DnnSuperResImpl_create()
+    path = FolderPath.MODEL + "EDSR_x4.pb"
+    sr.readModel(path)
+    sr.setModel("edsr", 4)
+    result = sr.upsample(image)
+    return result
+
 
 def bg_remove_hsv(image):
     """Remove background using HSV mask"""

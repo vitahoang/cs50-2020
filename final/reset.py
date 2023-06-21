@@ -1,5 +1,9 @@
+import cv2
+
+from transform import bg_remove_hsv, bg_remove_threshold, upscale
+from rembg import remove
 from control import click_item
-from resources import ItemLoc
+from resources import ItemLoc, FolderPath
 from symetry import superm2, draw
 from utils import screenshot, save_img, show_img
 
@@ -17,12 +21,12 @@ def solve_captcha(save=True):
 
     while theta != 0.0:
         captcha = crop_reset_captcha(screenshot())
-        # estimate_hsv(captcha)
-        # captcha_obj = extract_object(captcha, show=True)
-        r, theta = superm2(captcha)
+        captcha_obj = bg_remove_threshold(captcha)
+        show_img(captcha_obj)
+        r, theta = superm2(captcha_obj)
         print(r, theta)
-        if theta == 0.0:
-            click_item(loc=ItemLoc.RS_SEND)
+        # if theta == 0.0:
+        #     click_item(loc=ItemLoc.RS_SEND)
         click_item(loc=ItemLoc.RS_RIGHT)
     draw(captcha, r, theta)
     show_img(captcha)
@@ -36,3 +40,15 @@ def solve_captcha(save=True):
 def captcha_result():
     """TODO"""
     return True
+
+
+captcha = cv2.imread(FolderPath.SAMPLE + "wpoint-box.png")
+show_img(captcha)
+captcha = upscale(captcha)
+show_img(captcha)
+captcha_obj = remove(captcha)
+show_img(captcha_obj)
+r, theta = superm2(captcha_obj)
+print(r, theta)
+draw(captcha, r, theta)
+show_img(captcha)

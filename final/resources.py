@@ -1,11 +1,13 @@
 import getpass
 
-user_name = getpass.getuser()
+user_name = "/Users/" + getpass.getuser()
 
 
 class FolderPath:
-    ITEM = "/Users/" + user_name + "/Code/cs50-2020/final/item/"
-    IMAGE = "/Users/" + user_name + "/Code/cs50-2020/final/image/"
+    ITEM = user_name + "/Code/cs50-2020/final/items/"
+    IMAGE = user_name + "/Code/cs50-2020/final/images/"
+    SAMPLE = user_name + "/Code/cs50-2020/final/samples/"
+    MODEL = user_name + "/Code/cs50-2020/final/models/"
 
 
 class Item:
