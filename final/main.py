@@ -1,12 +1,14 @@
+from character import Character
 from control import open_app, click_item
 from error import raise_err
 from menu import MenuMap, MenuChat
 from npc import NPC
 from reset import solve_captcha
-from resources import Item, ItemLoc
+from resources import Item, ItemLoc, Map
 
 menu_map = MenuMap()
 menu_chat = MenuChat()
+_char = Character()
 
 
 def main():
@@ -25,10 +27,11 @@ def main():
     #     raise_err("Select Character Failed")
 
     # Reset
-    NPC(npc_name="reset").click_npc()
-    solve_captcha()
+    # NPC(npc_name="reset").click_npc()
+    # solve_captcha()
     # Master Reset
     # NPC(npc_name="master_reset").click_npc()
+    _char.train()
 
 
 if __name__ == "__main__":

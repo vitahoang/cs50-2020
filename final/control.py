@@ -10,12 +10,21 @@ from resources import FolderPath, Item
 from utils import process_running
 
 
-def click(x, y):
+def click(x=None, y=None, item_loc=None):
     """click to point(x,y) with sleep"""
-    pyautogui.moveTo(x, y)
-    time.sleep(2)
-    pyautogui.click()
-    time.sleep(1)
+    if item_loc:
+        pyautogui.moveTo(item_loc["x"], item_loc["y"])
+        time.sleep(2)
+        pyautogui.click()
+        time.sleep(1)
+        return True
+    if x and y:
+        pyautogui.moveTo(x, y)
+        time.sleep(2)
+        pyautogui.click()
+        time.sleep(1)
+        return True
+    return False
 
 
 def open_app():

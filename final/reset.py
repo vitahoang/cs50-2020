@@ -32,9 +32,9 @@ def solve_captcha(save=True):
         print(r, theta)
         draw(captcha_scl, r, theta)
         show_img(captcha_scl)
-        # if theta == 0.0:
-        #     click_item(loc=ItemLoc.RS_SEND)
-        # click_item(loc=ItemLoc.RS_RIGHT)
+        if theta == 0.0:
+            click_item(loc=ItemLoc.RS_SEND)
+        click_item(loc=ItemLoc.RS_RIGHT)
     draw(captcha, r, theta)
     show_img(captcha)
     # Draw symetry line
@@ -47,6 +47,3 @@ def solve_captcha(save=True):
 def captcha_result():
     """TODO: check captcha result"""
     return True
-
-
-solve_captcha()

@@ -75,12 +75,14 @@ class MenuChat(Menu):
     _menu = {"x": 1027, "y": 825}
 
     def chat(self, message):
-        print(message)
         self.open_menu()
         time.sleep(2)
         chars = [i for i in message]
         pyautogui.write(chars)
         pyautogui.press("enter")
 
-    def add(self, point_type: str, point: int):
+    def add_point(self, point_type: str, point: int):
         self.chat(point_type + str(point))
+
+    def move(self, map):
+        self.chat(map)

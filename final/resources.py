@@ -31,6 +31,7 @@ class ItemLoc:
     RS_RIGHT = {"x": 559, "y": 461}
     RS_LEFT = {"x": 885, "y": 465}
     RS_SEND = {"x": 724, "y": 590}
+    MV_LEFT = {"x": 175, "y": 781}
 
 
 class Point:
@@ -38,3 +39,11 @@ class Point:
     agility = "/a "
     life = "/v "
     energy = "/e "
+
+
+class Map:
+    arena11 = "/arena11"
+    rm = "/npcmr"
+    pk = "/npcpk"
+    noria = "/move Noria"
+    lorencia = "/move Lorencia"
