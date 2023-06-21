@@ -111,17 +111,18 @@ def superm2(image):
 
 
 def draw(image, r, theta):
+    result = image
     if np.pi / 4 < theta < 3 * (np.pi / 4):
-        for x in range(len(image.T)):
+        for x in range(len(result.T)):
             y = int((r - x * np.cos(theta)) / np.sin(theta))
-            if 0 <= y < len(image.T[x]):
-                image[y][x] = 255
+            if 0 <= y < len(result.T[x]):
+                result[y][x] = 255
     else:
-        for y in range(len(image)):
+        for y in range(len(result)):
             x = int((r - y * np.sin(theta)) / np.cos(theta))
-            if 0 <= x < len(image[y]):
-                image[y][x] = 255
-    return image
+            if 0 <= x < len(result[y]):
+                result[y][x] = 255
+    return result
 
 
 def main():
