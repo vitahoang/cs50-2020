@@ -17,44 +17,50 @@ from utils import process_running, screenshot, save_img, _raise, click, \
 
 def open_app():
     """open MUAway app"""
-    pyautogui.click()
-    pyautogui.hotkey("command", "space")
-    pyautogui.write(["m", "u", "a", "w", "a", "y"])
-    pyautogui.press('enter')
+    p = Popen(['osascript', '-'], stdin=PIPE, stdout=PIPE, stderr=PIPE,
+              universal_newlines=True)
+    open_scpt = '''
+        tell application "MuAwaY"
+            run
+            delay 2
+            activate
+        end tell'''
+    stdout, stderr = p.communicate(open_scpt)
+    print(p.returncode, stdout, stderr)
+    time.sleep(1)
+
     if process_running("MuAwaY"):
+        p = Popen(['osascript', '-'], stdin=PIPE, stdout=PIPE, stderr=PIPE,
+                  universal_newlines=True)
+        fullscreen_scpt = '''
+            tell application "System Events" to tell process "MuAwaY"
+                -- Exit full screen and move app to the 1 window
+                tell menu bar item "View" of menu bar 1
+                    click
+                    try
+                        tell menu item "Exit Full Screen" of menu 1
+                            click
+                        end tell
+                    end try
+                end tell
+                delay 2
+                
+                
+                set position of window 1 to {0, 50}
+                -- Enter fullscreen
+                tell menu bar item "View" of menu bar 1
+                    click
+                    try
+                        tell menu item "Enter Full Screen" of menu 1
+                            click
+                        end tell
+                    end try
+                end tell
+            end tell'''
+        stdout, stderr = p.communicate(fullscreen_scpt)
+        print(p.returncode, stdout, stderr)
         return True
     print("Cannot Open App!")
-    return False
-
-
-def find_item(item, wait=3):
-    """find item given its image then return its location on screen"""
-    item_path = FolderPath.ITEM + item
-    print(f"Finding: {item_path}")
-    item_img = cv2.imread(item_path)
-    item_loc = None
-    for _ in range(3):
-        time.sleep(wait)
-        item_loc = pyautogui.locateOnScreen(item_img)
-        if item_loc:
-            break
-    if item_loc is None:
-        raise_err("button not found")
-        return False
-    loc_x, loc_y = pyautogui.center(item_loc)
-    return {"x": loc_x / 2, "y": loc_y / 2}
-
-
-def click_item(item="", loc=None, wait=4):
-    """click to an item given its image"""
-    if item:
-        item_loc = find_item(item, wait)
-        if item_loc:
-            click(item_loc["x"], item_loc["y"])
-            return True
-    if loc:
-        click(loc["x"], loc["y"])
-        return True
     return False
 
 
@@ -64,14 +70,16 @@ def first_reset_farm():
     return True
 
 
-def check_screen(screen: str):
+def check_screen():
     """check which screen is showed"""
-    if screen == "start" and find_item(Item.START):
-        return True
-    if screen == "choose_server" and find_item(Item.VIP):
-        return True
-    if screen == "choose_character" and find_item(Item.C_MAGIC):
-        return True
+    if find_item(Item.START):
+        return Screen.START
+    if find_item(Item.VIP):
+        return Screen.SERVER
+    if find_item(Item.C_MAGIC):
+        return Screen.CHARACTER
+    if find_item(Item.COLLAPSE):
+        return Screen.IN_GAME
     return False
 
 
@@ -89,3 +97,98 @@ def move_character(x=1, y=1):
     if y < 0:
         for _ in range(abs(x)):
             click(642, 643)
+
+
+def join_server(server="VIP5"):
+    if check_screen() != Screen.SERVER:
+        print("Screen is not at SERVER")
+        return False
+    try:
+        _type = " ".join(re.findall("[a-zA-Z]+", server)).upper()
+        _number = server[-1]
+        server_name = "ItemLoc." + _type
+        sub_server_name = server_name + _number
+        click(item_loc=eval(server_name))
+        click(item_loc=eval(sub_server_name))
+        time.sleep(5)
+        select_character()
+        time.sleep(5)
+    except Exception as e:
+        _raise(e)
+    return True
+
+
+def select_character(_char=ItemLoc.C_MAGIC):
+    if check_screen() != Screen.CHARACTER:
+        print("Screen is not at CHARACTER")
+        return False
+    try:
+        click(item_loc=_char)
+        click(item_loc=ItemLoc.C_ENTER)
+        time.sleep(5)
+        if check_screen() == Screen.IN_GAME:
+            return True
+    except Exception as e:
+        _raise(e)
+
+
+def solve_captcha():
+    while Character().cur_loc()["map_name"] != "Lorencia":
+        time.sleep(2)
+        # ss = cv2.imread(FolderPath.SAMPLE + "boots.png")
+        # show_img(ss)
+        crop = screenshot(region=(790, 1070, 1320, 1570))
+        show_img(crop)
+        captcha_scl = upscale(crop)
+        captcha_obj = remove(captcha_scl)
+        r, theta = superm2(captcha_obj)
+        print(r, theta)
+        if 0.00 <= theta <= 0.03 or theta == 3.14:
+            click_item(item_path=ItemLoc.RS_SEND)
+            time.sleep(2)
+            if Character().cur_loc()["map_name"] == "Arena":
+                sym_image = draw(crop, r, theta)
+                save_img(image=sym_image, name="captcha", suffix="-failed",
+                         folder_path=FolderPath.SAMPLE)
+                continue
+            break
+        click_item(item_path=ItemLoc.RS_RIGHT)
+    return True
+
+
+def train(character: Character, _map=Map.arena11):
+    MenuChat().move(_map)
+    map_name = " ".join(re.findall("[a-zA-Z]+", _map))
+    time.sleep(2)
+    if character.cur_loc()["map_name"].lower() == map_name:
+        click(item_loc=ItemLoc.MOVE_LEFT)
+        while not character.check_max_lvl():
+            pyautogui.mouseDown(x=ItemLoc.ATTACK_EVIL["x"],
+                                y=ItemLoc.ATTACK_EVIL["y"])
+            time.sleep(5)
+        print("Train Complete: Max LvL")
+        return True
+    return False
+
+
+def train_after_reset(character: Character):
+    join_server("SPOT5")
+    menu = MenuChat()
+    menu.move(Map.arena11)
+    time.sleep(2)
+    if character.cur_loc()["map_name"].lower() == "Arena":
+        click(item_loc=ItemLoc.MOVE_LEFT)
+        while 1 <= character.cur_lvl()["lvl"] <= 50:
+            pyautogui.mouseDown(x=ItemLoc.ATTACK_HAND["x"],
+                                y=ItemLoc.ATTACK_HAND["y"])
+            time.sleep(5)
+        menu.add_point(Point.energy, character.free_point)
+        while 51 <= character.cur_lvl()["lvl"] <= 100:
+            pyautogui.mouseDown(x=ItemLoc.ATTACK_HAND["x"],
+                                y=ItemLoc.ATTACK_HAND["y"])
+            time.sleep(5)
+        menu.add_point(Point.energy, character.free_point)
+        setting = MenuSetting()
+        setting.open_menu("1", "server")
+        return True
+    return False
