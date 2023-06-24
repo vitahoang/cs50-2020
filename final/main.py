@@ -1,37 +1,35 @@
-from character import Character
-from control import open_app, click_item
-from error import raise_err
-from menu import MenuMap, MenuChat
-from npc import NPC
-from reset import solve_captcha
-from resources import Item, ItemLoc, Map
+import time
 
-menu_map = MenuMap()
-menu_chat = MenuChat()
-_char = Character()
+from models.character import Character
+from control import open_app, join_server, check_screen, solve_captcha, \
+    train_after_reset, train
+from utils import pop_err, click
+from models.npc import NPC
+from models.resources import ItemLoc, Map, Screen
 
 
 def main():
-    # Login
-    # if open_app() is False:
-    #     raise_err("Open App Failed")
-    # if click_item(loc=ItemLoc.START) is False:
-    #     raise_err("Start Failed")
-    # if click_item(Item.VIP) is False:
-    #     raise_err("Join Sever Failed")
-    # if click_item(Item.VIP5, 1) is False:
-    #     raise_err("Join Sever Failed")
-    # if click_item(Item.C_MAGIC) is False:
-    #     raise_err("Select Character Failed")
-    # if click_item(Item.C_ENTER, 1) is False:
-    #     raise_err("Select Character Failed")
+    if open_app() is False:
+        pop_err("Open App Failed")
+    time.sleep(5)
+    character = Character()
+    for _ in range(3):
+        if character.cur_loc():
+            break
+        click(item_loc=ItemLoc.START)
+        if check_screen() != Screen.SERVER:
+            pop_err("Start Failed")
+            break
+        time.sleep(5)
+        join_server()
 
-    # Reset
-    # NPC(npc_name="reset").click_npc()
-    # solve_captcha()
-    # Master Reset
-    # NPC(npc_name="master_reset").click_npc()
-    _char.train()
+    character.cur_lvl()
+    character.cur_stat()
+    if character.reset == 0:
+        train_after_reset(character)
+    if train(character):
+        NPC(npc_name="master_reset").click_npc()
+        solve_captcha()
 
 
 if __name__ == "__main__":

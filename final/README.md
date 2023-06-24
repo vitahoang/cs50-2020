@@ -12,7 +12,7 @@ the site-packages dir. For example, in site-packages, use this script if you cre
 grep -o '\/Users.*\s(Activated)' | cut -d " " -f 1)\
 "/lib/python"\
 $(poetry env list --full-path | \
-grep -o '\/Users.*\s(Activated)' | cut -d " " -f 1 | grep -o '\d\.\d')\
+ grep -Po '\-py.*\s\(Activated\)' | grep -Po '\d\.\d{1,2}')\
 "/site-packages/"; ln -s cv2/cv2.abi3.so)
 ```
 
@@ -41,6 +41,25 @@ if tuple(map(int, PIL__version__.split("."))) < (6, 2, 1):
 ```
 
 ### No module named '_tkinter'
+
+If you use pyenv to manage your Python versions (which you should), you'll run into this issue. I was able to fix it by
+following these two steps.
+
+1. Install necessary system packages:
+
+```
+# Install necessary system packages:
+brew install tcl-tk openssl readline sqlite3 xz zlib
+# Uninstall the current version
+export PY_VER=$(python --version | cut -d " " -f 2)    
+pyenv uninstall $(echo $PY_VER)
+# Link the correct versions of Tcl/Tk
+env LDFLAGS="-L$(brew --prefix openssl@1.1)/lib -L$(brew --prefix readline)/lib -L$(brew --prefix sqlite3)/lib -L$(brew --prefix xz)/lib -L$(brew --prefix zlib)/lib -L$(brew --prefix tcl-tk)/lib" \
+CPPFLAGS="-I$(brew --prefix openssl@1.1)/include -I$(brew --prefix readline)/include -I$(brew --prefix sqlite3)/include -I$(brew --prefix xz)/include -I$(brew --prefix zlib)/include -I$(brew --prefix tcl-tk)/include" \
+PKG_CONFIG_PATH="$(brew --prefix openssl@1.1)/lib/pkgconfig:$(brew --prefix readline)/lib/pkgconfig:$(brew --prefix sqlite3)/lib/pkgconfig:$(brew --prefix xz)/lib/pkgconfig:$(brew --prefix zlib)/lib/pkgconfig:$(brew --prefix tcl-tk)/lib/pkgconfig" \
+PYTHON_CONFIGURE_OPTS="--with-tcltk-includes='-I$(brew --prefix tcl-tk)/include' --with-tcltk-libs='-L$(brew --prefix tcl-tk)/lib -ltcl8.6 -ltk8.6'" \
+pyenv install $(echo $PY_VER)
+```
 
 https://github.com/python-poetry/poetry/issues/4322#issuecomment-1574852226
 

@@ -1,30 +1,18 @@
 """Provide Methods to control"""
+import re
 import time
-from tkinter import Tk
+from subprocess import Popen, PIPE
 
-import cv2
 import pyautogui
+from rembg import remove
 
-from error import raise_err
-from resources import FolderPath, Item
-from utils import process_running
-
-
-def click(x=None, y=None, item_loc=None):
-    """click to point(x,y) with sleep"""
-    if item_loc:
-        pyautogui.moveTo(item_loc["x"], item_loc["y"])
-        time.sleep(2)
-        pyautogui.click()
-        time.sleep(1)
-        return True
-    if x and y:
-        pyautogui.moveTo(x, y)
-        time.sleep(2)
-        pyautogui.click()
-        time.sleep(1)
-        return True
-    return False
+from models.character import Character
+from models.image import upscale
+from models.menu import MenuChat, MenuSetting
+from models.resources import FolderPath, Item, ItemLoc, Screen, Map, Point
+from symetry import superm2, draw
+from utils import process_running, screenshot, save_img, _raise, click, \
+    click_item, find_item, show_img
 
 
 def open_app():
