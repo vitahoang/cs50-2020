@@ -1,7 +1,7 @@
 import time
 
-from control import click
-from menu import MenuMap
+from utils import click
+from models.menu import MenuMap
 
 
 class NPC:
@@ -36,11 +36,6 @@ class NPC:
 
     def click_npc(self):
         menu_map = MenuMap()
-        if self.map == "arena":
-            menu_map.map_arena(self.map_lv2)
-        if self.map == "lorencia":
-            menu_map.map_lorencia(self.map_lv2)
-        if self.map == "noria":
-            menu_map.map_noria(self.map_lv2)
+        eval("menu_map.map_" + self.map + "(self.map_lv2)")
         time.sleep(3)
         click(self.click_loc["x"], self.click_loc["y"])

@@ -1,15 +1,16 @@
 import cv2
 import numpy as np
 
-from resources import FolderPath
+from models.resources import FolderPath
 
 
 def upscale(image):
     sr = cv2.dnn_superres.DnnSuperResImpl_create()
-    path = FolderPath.MODEL + "FSRCNN-small_x4.pb"
+    path = FolderPath.MODEL + "EDSR_x2.pb"
     sr.readModel(path)
-    sr.setModel("fsrcnn", 4)
-    result = sr.upsample(image)
+    sr.setModel("edsr", 4)
+    img = cv2.cvtColor(image, cv2.COLOR_BGRA2BGR)
+    result = sr.upsample(img)
     return result
 
 

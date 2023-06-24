@@ -35,7 +35,7 @@ def extract_text_from(img):
     im2 = img.copy()
 
     # A text file is created and flushed
-    _file = open("recognized.txt", "w+")
+    _file = open("../recognized.txt", "w+")
     _file.write("")
     _file.close()
 
