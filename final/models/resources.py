@@ -69,7 +69,7 @@ class ItemLoc(Resource):
     CHAT = {"x": 1027, "y": 825}
     SETTING = {"x": 1066, "y": 38}
     CHANGE_SERVER = {"x": 724, "y": 385}
-
+    INVENTORY = {"x": 1282, "y": 66}
 
 
 a = Command()

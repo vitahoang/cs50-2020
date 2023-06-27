@@ -5,7 +5,7 @@ import pyautogui
 import pyscreeze
 
 from models.resources import Screen, FolderPath
-from utils import screenshot, click, _raise
+from utils import screenshot, click, _raise, show_img
 
 START = {
     "name": "start",
@@ -74,6 +74,14 @@ CHAT_SEND = {
     "region": (32, 110, 2352, 2548)
 }
 
+INVENTORY_SLOT = {
+    "name": "inventory_slot",
+    "img_path": "inventory-slot.png",
+    "screen": Screen.IN_GAME,
+    "loc": {"x": 1005, "y": 473},
+    "region": (910, 1472, 1968, 2530)
+}
+
 
 class Item:
     name: str
@@ -89,7 +97,8 @@ class Item:
         self.loc = item["loc"]
         self.region = item["region"]
 
-    def find_item(self, item_path: str = None, region: tuple = None):
+    def find_item(self, item_path: str = None, region: tuple = None,
+                  preview=False):
         """find item given an image then return its central location on
         screen"""
         path = FolderPath.ITEM + \
@@ -101,6 +110,9 @@ class Item:
             time.sleep(3)
             query_img = cv2.imread(path)
             target_img = screenshot(region=target_region)
+            if preview:
+                show_img(query_img)
+                show_img(target_img)
             result = pyscreeze.locate(needleImage=query_img,
                                       haystackImage=target_img,
                                       grayscale=False,
@@ -116,10 +128,15 @@ class Item:
         print(loc_x / 2, loc_y / 2)
         return {"x": loc_x / 2, "y": loc_y / 2}
 
-    def click_item(self):
+    def click_item(self, find=True, pick_up=False):
         try:
+            if not find:
+                click(_loc=self.loc)
+                if pick_up:
+                    click(_loc=self.loc)
+                return self.loc
             loc = self.find_item()
-            click(item_loc=loc)
+            click(_loc=loc)
             return loc
         except Exception as e:
             _raise(e)

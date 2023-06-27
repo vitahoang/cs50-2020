@@ -30,7 +30,7 @@ class Character:
 
     def cur_lvl(self, menu=True):
         if menu:
-            click(item_loc=ItemLoc.STAT_MENU)
+            click(_loc=ItemLoc.STAT_MENU)
         ss = screenshot()
         stat_img = ss[450:490, 1430:1906]
         info = extract_text_from(stat_img)
@@ -50,16 +50,16 @@ class Character:
                 self.free_point = int(info[3])
                 _char["free_point"] = info[3]
             if menu:
-                click(item_loc=ItemLoc.STAT_MENU)
+                click(_loc=ItemLoc.STAT_MENU)
             return _char
         except Exception as e:
             _raise(e)
         if menu:
-            click(item_loc=ItemLoc.STAT_MENU)
+            click(_loc=ItemLoc.STAT_MENU)
         return False
 
     def cur_stat(self):
-        click(item_loc=ItemLoc.STAT_MENU)
+        click(_loc=ItemLoc.STAT_MENU)
         if not self.cur_lvl(menu=False):
             return False
         ss = screenshot()
@@ -88,10 +88,10 @@ class Character:
                                stat["agility"] + \
                                stat["life"] + \
                                stat["energy"]
-            click(item_loc=ItemLoc.STAT_MENU)
+            click(_loc=ItemLoc.STAT_MENU)
             return stat
         except Exception as e:
-            click(item_loc=ItemLoc.STAT_MENU)
+            click(_loc=ItemLoc.STAT_MENU)
             _raise(e)
         return False
 

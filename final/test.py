@@ -1,4 +1,9 @@
-from models.character import Character
+from models.item import *
+from models.resources import ItemLoc
 
-character = Character()
-character.check_max_reset()
+click(_loc=ItemLoc.INVENTORY)
+box = Item(INVENTORY_SLOT)
+box.click_item(find=False, pick_up=True)
+box.click_item()
+click(_loc=ItemLoc.INVENTORY)
+

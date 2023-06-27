@@ -22,7 +22,7 @@ def main():
             pop_err("Open App Failed")
             return False
         case Screen.START:
-            click(item_loc=ItemLoc.START)
+            click(_loc=ItemLoc.START)
             time.sleep(4)
             join_server()
         case Screen.SERVER:

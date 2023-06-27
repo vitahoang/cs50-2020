@@ -41,4 +41,4 @@ class NPC:
     def click_npc(self):
         chat(self.command)
         time.sleep(6)
-        click(item_loc=self.click_loc)
+        click(_loc=self.click_loc)
