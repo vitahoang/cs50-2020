@@ -91,12 +91,12 @@ def _raise(e: Exception = None, act="raise"):
 
 def click(x: int = 0,
           y: int = 0,
-          item_loc: dict = None,
+          _loc: dict = None,
           _click: int = 1,
           _interval=0.0):
     """click to point(x,y) with sleep"""
-    if item_loc:
-        pyautogui.moveTo(item_loc["x"], item_loc["y"])
+    if _loc:
+        pyautogui.moveTo(_loc["x"], _loc["y"])
         time.sleep(0.5)
         pyautogui.click(clicks=_click, interval=_interval)
         time.sleep(0.5)
@@ -132,7 +132,7 @@ def find_item(item_path: str, region: tuple = None, wait=3):
 
 def chat(*args: str):
     try:
-        click(item_loc=ItemLoc.CHAT)
+        click(_loc=ItemLoc.CHAT)
         time.sleep(0.5)
         chars = []
         for arg in args:
@@ -144,3 +144,15 @@ def chat(*args: str):
         time.sleep(0.5)
     except Exception as e:
         _raise(e)
+
+
+def cal_rotate_n(new_theta: int, last_theta: int):
+    change = 0.3
+    if new_theta == last_theta:
+        return 1
+    if new_theta - last_theta > 0:
+        rotate_n = int((3.14 - new_theta) // change - 1)
+        return 1 if rotate_n < 1 else rotate_n
+    if new_theta - last_theta < 0:
+        rotate_n = int(new_theta // change)
+        return 1 if rotate_n < 1 else rotate_n

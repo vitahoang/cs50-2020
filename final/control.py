@@ -13,11 +13,12 @@ from models.resources import FolderPath, Screen, Command, Point, ItemLoc
 from models.text import extract_text_from
 from symetry import superm2, draw
 from utils import process_running, screenshot, save_img, _raise, click, \
-    chat, pop_err
+    chat, pop_err, cal_rotate_n
 
 server_name: str
 sub_server_name: str
 first_theta = None
+last_theta = None
 
 
 def open_app():
@@ -72,7 +73,7 @@ def open_app():
 def check_screen(screen: Screen = None):
     """check which screen is showed"""
     if (screen == Screen.START or not screen) \
-            and click(item_loc=ItemLoc.CHAT) \
+            and click(_loc=ItemLoc.CHAT) \
             and Item(CHAT_SEND).click_item():
         return Screen.IN_GAME
     if (screen == Screen.START or not screen) and \
@@ -98,7 +99,7 @@ def log_in():
             pop_err("Open App Failed")
             return False
         case Screen.START:
-            click(item_loc=ItemLoc.START)
+            click(_loc=ItemLoc.START)
             time.sleep(5)
             return Screen.SERVER
         case Screen.SERVER:
@@ -116,8 +117,8 @@ def join_server(server="VIP5"):
         global server_name, sub_server_name
         server_name = "ItemLoc." + _type
         sub_server_name = server_name + _number
-        click(item_loc=eval(server_name))
-        click(item_loc=eval(sub_server_name))
+        click(_loc=eval(server_name))
+        click(_loc=eval(sub_server_name))
         time.sleep(5)
         select_character()
         time.sleep(5)
@@ -130,8 +131,8 @@ def join_server(server="VIP5"):
 
 def select_character(_char=ItemLoc.C_MAGIC):
     try:
-        click(item_loc=_char)
-        click(item_loc=ItemLoc.C_ENTER)
+        click(_loc=_char)
+        click(_loc=ItemLoc.C_ENTER)
         time.sleep(4)
         if check_screen(Screen.IN_GAME) == Screen.IN_GAME:
             return True
@@ -172,20 +173,34 @@ def reset_wait(message):
 
 
 def solve_captcha(master=False):
-    n = 0
-    global first_theta
+    global first_theta, last_theta
+    first_try = True
+
+    # random seed to choose which side to rotate the captcha image
     seed = random.choice([True, False])
+
     while not re.search("Lorencia", Character().cur_loc()[0]):
         time.sleep(3)
+
+        # crop and upscale the captcha
         crop = screenshot(region=(790, 1070, 1320, 1570))
         captcha_scl = upscale(crop)
         captcha_obj = remove(captcha_scl)
         r, theta = superm2(captcha_obj)
+        if not last_theta:
+            last_theta = theta
+        rotate_n = cal_rotate_n(theta, last_theta)
         print(r, theta)
+
+        # if theta = 0 or 3.14, the captcha is at vertical symetry position
         if 0.00 <= theta <= 0.03 or theta == 3.14 or first_theta == theta:
-            click(item_loc=ItemLoc.RS_SEND)
+            click(_loc=ItemLoc.RS_SEND)
+
+            # reset seed and first theta
             seed = random.choice([True, False])
-            first_theta = 0.0
+            first_try = True
+            first_theta = None
+
             time.sleep(2)
             if re.search('arena', Character().cur_loc()[0].lower()):
                 sym_image = draw(captcha_scl, r, theta)
@@ -200,22 +215,22 @@ def solve_captcha(master=False):
                 time.sleep(3)
                 continue
             break
-        if n == 0:
+        if first_try:
             first_theta = theta
-        n += 1
+            first_try = False
         if seed:
-            click(item_loc=ItemLoc.RS_LEFT)
+            click(_loc=ItemLoc.RS_LEFT, _click=rotate_n)
         else:
-            click(item_loc=ItemLoc.RS_RIGHT)
+            click(_loc=ItemLoc.RS_RIGHT, _click=rotate_n)
     time.sleep(7)
     join_server()
     return True
 
 
 def train_point():
-    click(item_loc=ItemLoc.MOVE_LEFT, _click=2, _interval=2)
+    click(_loc=ItemLoc.MOVE_LEFT, _click=2, _interval=2)
     time.sleep(1)
-    click(item_loc=ItemLoc.MOVE_UP)
+    click(_loc=ItemLoc.MOVE_UP)
 
 
 def train(character: Character, map_command=Command.ARENA11):
@@ -239,9 +254,19 @@ def train(character: Character, map_command=Command.ARENA11):
 def train_after_reset(character: Character):
     if character.cur_reset() > 0 or character.energy > 3000:
         return True
+    click(_loc=ItemLoc.INVENTORY)
+    box = Item(INVENTORY_SLOT)
+    box.click_item(find=False, pick_up=True)
+    box.click_item()
+    click(_loc=ItemLoc.INVENTORY)
+
+    box = Item(INVENTORY_SLOT)
+    box.click_item(find=False, pick_up=True)
+    box.click_item()
+
     if character.lvl <= 50:
-        click(item_loc=ItemLoc.SETTING)
-        click(item_loc=ItemLoc.CHANGE_SERVER)
+        click(_loc=ItemLoc.SETTING)
+        click(_loc=ItemLoc.CHANGE_SERVER)
         time.sleep(6)
         join_server("SPOT5")
         chat(Command.ARENA11)
@@ -253,8 +278,8 @@ def train_after_reset(character: Character):
                                     y=ItemLoc.ATTACK_HAND["y"])
                 time.sleep(5)
             character.add_point(stat=Point.ENERGY)
-        click(item_loc=ItemLoc.SETTING)
-        click(item_loc=ItemLoc.CHANGE_SERVER)
+        click(_loc=ItemLoc.SETTING)
+        click(_loc=ItemLoc.CHANGE_SERVER)
     else:
         time.sleep(6)
         join_server("VIP5")
