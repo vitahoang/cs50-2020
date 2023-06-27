@@ -75,29 +75,5 @@ class MenuMap(Menu):
         time.sleep(1)
 
 
-class MenuChat(Menu):
-    _menu = {"x": 1027, "y": 825}
-
-    def chat(self, message):
-        self.open()
-        time.sleep(1)
-        chars = [i for i in message]
-        pyautogui.write(chars)
-        pyautogui.press("enter")
-        time.sleep(1)
-
-    def add_point(self, point_type: str, point: int):
-        self.chat(point_type + str(point))
-
-    def move(self, map):
-        self.chat(map)
-
-
 class MenuSetting(Menu):
-    _menu = {"x": 1066, "y": 41}
-    lv1 = {
-        "exit": {"x": 720, "y": 339},
-        "server": {"x": 719, "y": 386},
-        "character": {"x": 721, "y": 426}
-    }
-
+    pass

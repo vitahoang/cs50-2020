@@ -1,3 +1,4 @@
+import sys
 import time
 import traceback
 from datetime import datetime
@@ -8,10 +9,11 @@ import numpy as np
 import psutil
 import pyautogui
 import pyscreeze
+from matplotlib import pyplot as plt
 from numpy import ndarray
 from pymsgbox import alert
 
-from models.resources import FolderPath
+from models.resources import FolderPath, ItemLoc
 
 
 def process_running(process_name):
@@ -44,15 +46,17 @@ def screenshot(monitor_number=1, region: tuple = None) -> ndarray:
     return result
 
 
-def screen_info():
+def screen_info(axis=False):
     screen_width, screen_height = pyautogui.size()
     print(screen_width, screen_height)
     mouse_x, mouse_y = pyautogui.position()
-    print(mouse_x, mouse_y)
+    if not axis:
+        return {"x": mouse_x, "y": mouse_y}
+    return {"x": mouse_x * 2, "y": mouse_y * 2}
 
 
 def save_img(image, name="img", suffix="", folder_path=FolderPath.IMAGE):
-    cur_time = datetime.utcnow().strftime('%Y%m%d-%H:%M:%S.%f')[:-3]
+    cur_time = datetime.utcnow().strftime('%Y%m%d-%H%M%S%f')[:-3]
     image_path = folder_path + name + suffix + cur_time + ".png"
     try:
         cv2.imwrite(image_path, image)
@@ -61,14 +65,20 @@ def save_img(image, name="img", suffix="", folder_path=FolderPath.IMAGE):
         _raise(e)
 
 
-def show_img(img, window="", delay=0):
-    cv2.imshow(winname=window, mat=img)
-    cv2.waitKey(delay)
-    cv2.destroyAllWindows()
+def show_img(img, window="", delay=0, axis=False):
+    if not axis:
+        cv2.imshow(winname=window, mat=img)
+        cv2.waitKey(delay)
+        cv2.destroyAllWindows()
+        return True
+    plt.imshow(img, interpolation='nearest')
+    plt.show()
+    return True
 
 
 def pop_err(text="", title="Error", button="OK"):
     alert(text=text, title=title, button=button)
+    sys.exit()
 
 
 def _raise(e: Exception = None, act="raise"):
@@ -100,14 +110,6 @@ def click(x: int = 0,
     return False
 
 
-def click_item(item_path: str):
-    try:
-        loc = find_item(item_path=item_path)
-        click(item_loc=loc)
-    except Exception as e:
-        _raise(e)
-
-
 def find_item(item_path: str, region: tuple = None, wait=3):
     """find item given an image then return its central location on screen"""
     item_path = FolderPath.ITEM + item_path
@@ -115,8 +117,8 @@ def find_item(item_path: str, region: tuple = None, wait=3):
     item_loc = None
     for _ in range(3):
         time.sleep(wait)
-        hayimage = screenshot(region=region)
         needleimage = cv2.imread(item_path)
+        hayimage = screenshot(region=region)
         item_loc = pyscreeze.locate(needleImage=needleimage,
                                     haystackImage=hayimage, grayscale=False)
         if item_loc:
@@ -126,3 +128,19 @@ def find_item(item_path: str, region: tuple = None, wait=3):
     loc_x, loc_y = pyautogui.center(item_loc)
 
     return {"x": loc_x / 2, "y": loc_y / 2}
+
+
+def chat(*args: str):
+    try:
+        click(item_loc=ItemLoc.CHAT)
+        time.sleep(0.5)
+        chars = []
+        for arg in args:
+            for c in arg:
+                chars.append(c)
+        pyautogui.write(chars)
+        time.sleep(0.5)
+        pyautogui.press("enter")
+        time.sleep(0.5)
+    except Exception as e:
+        _raise(e)

@@ -7,7 +7,7 @@ pytesseract.pytesseract.tesseract_cmd = \
     "/opt/homebrew/Cellar/tesseract/5.3.1_1/bin/tesseract"
 
 
-def extract_text_from(img):
+def extract_text_from(img, save=False):
     # Preprocessing the image starts
 
     # Convert the image to gray scale
@@ -35,9 +35,10 @@ def extract_text_from(img):
     im2 = img.copy()
 
     # A text file is created and flushed
-    _file = open("../recognized.txt", "w+")
-    _file.write("")
-    _file.close()
+    if save:
+        _file = open("../recognized.txt", "w+")
+        _file.write("")
+        _file.close()
 
     # Looping through the identified contours
     # Then rectangular part is cropped and passed on

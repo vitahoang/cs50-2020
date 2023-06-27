@@ -1,8 +1,7 @@
-import sys
-
 import cv2
 import matplotlib.pyplot as plt
 import numpy as np
+from numpy import ndarray
 
 sift = cv2.SIFT_create()
 
@@ -38,7 +37,7 @@ def angle_with_x_axis(i, j):
     return angle
 
 
-def superm2(image):
+def superm2(image, plot=False):
     """Performs the symmetry detection on image.
     Somewhat clunky at the moment -- first you 
     must comment out the last two lines: the 
@@ -94,7 +93,10 @@ def superm2(image):
     # print(*(m.distance for m in matches[:10]))
     # cv2.imshow('a',img3); cv2.waitKey(0);
     def hex():
-        pcol = plt.hexbin(houghr, houghth, bins=200)
+        if plot:
+            plt.hexbin(houghr, houghth, bins=200, gridsize=50)
+            plt.show()
+        pcol = plt.hexbin(houghr, houghth, bins=200, gridsize=50)
         # get the most density bin from the hexbin plot
         max_ = pcol.get_array().max()
         max_pos = pcol.get_array().argmax()
@@ -110,8 +112,8 @@ def superm2(image):
     # cv2.imshow('a', image); cv2.waitKey(0);
 
 
-def draw(image, r, theta):
-    result = image
+def draw(image: ndarray, r, theta):
+    result = image.copy()
     if np.pi / 4 < theta < 3 * (np.pi / 4):
         for x in range(len(result.T)):
             y = int((r - x * np.cos(theta)) / np.sin(theta))
@@ -122,22 +124,4 @@ def draw(image, r, theta):
             x = int((r - y * np.sin(theta)) / np.cos(theta))
             if 0 <= x < len(result[y]):
                 result[y][x] = 255
-    return result
-
-
-def main():
-    argc = len(sys.argv)
-    if not (argc == 2 or argc == 4 or argc == 5):
-        print("Usage: python3 symetry.py IMAGE [r] [theta]")
-        return
-    if argc == 2:
-        superm2(cv2.imread(sys.argv[1], 0))
-    elif argc == 4:
-        image = cv2.imread(sys.argv[1], 0)
-        draw(image, float(sys.argv[2]), float(sys.argv[3]))
-        cv2.imshow("a", image)
-        cv2.waitKey(0)
-    else:
-        image = cv2.imread(sys.argv[1], 0)
-        draw(image, float(sys.argv[2]), float(sys.argv[3]))
-        cv2.imwrite("{}".format(sys.argv[4]), image)
+    return result.copy()

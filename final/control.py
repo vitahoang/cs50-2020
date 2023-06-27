@@ -1,18 +1,23 @@
 """Provide Methods to control"""
+import random
 import re
-import time
 from subprocess import Popen, PIPE
 
-import pyautogui
 from rembg import remove
 
 from models.character import Character
 from models.image import upscale
-from models.menu import MenuChat, MenuSetting
-from models.resources import FolderPath, Item, ItemLoc, Screen, Map, Point
+from models.item import *
+from models.npc import NPC, npc_reset, npc_master
+from models.resources import FolderPath, Screen, Command, Point, ItemLoc
+from models.text import extract_text_from
 from symetry import superm2, draw
 from utils import process_running, screenshot, save_img, _raise, click, \
-    click_item, find_item, show_img
+    chat, pop_err
+
+server_name: str
+sub_server_name: str
+first_theta = None
 
 
 def open_app():
@@ -64,23 +69,74 @@ def open_app():
     return False
 
 
-def first_reset_farm():
-    click_item(Item.SPOT)
-    click_item(Item.SPOT5)
-    return True
-
-
-def check_screen():
+def check_screen(screen: Screen = None):
     """check which screen is showed"""
-    if find_item(Item.START):
-        return Screen.START
-    if find_item(Item.VIP):
-        return Screen.SERVER
-    if find_item(Item.C_MAGIC):
-        return Screen.CHARACTER
-    if find_item(Item.COLLAPSE):
+    if (screen == Screen.START or not screen) \
+            and click(item_loc=ItemLoc.CHAT) \
+            and Item(CHAT_SEND).click_item():
         return Screen.IN_GAME
+    if (screen == Screen.START or not screen) and \
+            Item(START).find_item():
+        return Screen.START
+    if (screen == Screen.SERVER or not screen) and \
+            Item(VIP).find_item():
+        return Screen.SERVER
+    if (screen == Screen.CHARACTER or not screen) and \
+            Item(C_MAGIC).find_item():
+        return Screen.CHARACTER
     return False
+
+
+def log_in():
+    if open_app() is False:
+        pop_err("Open App Failed")
+        return False
+    time.sleep(5)
+    screen = check_screen()
+    match screen:
+        case None:
+            pop_err("Open App Failed")
+            return False
+        case Screen.START:
+            click(item_loc=ItemLoc.START)
+            time.sleep(5)
+            return Screen.SERVER
+        case Screen.SERVER:
+            return screen
+        case Screen.IN_GAME:
+            return screen
+
+
+def join_server(server="VIP5"):
+    if not check_screen(Screen.SERVER):
+        return False
+    try:
+        _type = " ".join(re.findall("[a-zA-Z]+", server)).upper()
+        _number = server[-1]
+        global server_name, sub_server_name
+        server_name = "ItemLoc." + _type
+        sub_server_name = server_name + _number
+        click(item_loc=eval(server_name))
+        click(item_loc=eval(sub_server_name))
+        time.sleep(5)
+        select_character()
+        time.sleep(5)
+        if check_screen(Screen.IN_GAME) == Screen.IN_GAME:
+            return True
+    except Exception as e:
+        _raise(e)
+    return False
+
+
+def select_character(_char=ItemLoc.C_MAGIC):
+    try:
+        click(item_loc=_char)
+        click(item_loc=ItemLoc.C_ENTER)
+        time.sleep(4)
+        if check_screen(Screen.IN_GAME) == Screen.IN_GAME:
+            return True
+    except Exception as e:
+        _raise(e)
 
 
 def move_character(x=1, y=1):
@@ -99,96 +155,120 @@ def move_character(x=1, y=1):
             click(642, 643)
 
 
-def join_server(server="VIP5"):
-    if check_screen() != Screen.SERVER:
-        print("Screen is not at SERVER")
-        return False
-    try:
-        _type = " ".join(re.findall("[a-zA-Z]+", server)).upper()
-        _number = server[-1]
-        server_name = "ItemLoc." + _type
-        sub_server_name = server_name + _number
-        click(item_loc=eval(server_name))
-        click(item_loc=eval(sub_server_name))
-        time.sleep(5)
-        select_character()
-        time.sleep(5)
-    except Exception as e:
-        _raise(e)
-    return True
+def read_message():
+    ss = screenshot()
+    chat_window = ss[1500:1645, 800:1495]
+    message = extract_text_from(chat_window).replace("\n", "")
+    print(message)
+    return message
 
 
-def select_character(_char=ItemLoc.C_MAGIC):
-    if check_screen() != Screen.CHARACTER:
-        print("Screen is not at CHARACTER")
-        return False
-    try:
-        click(item_loc=_char)
-        click(item_loc=ItemLoc.C_ENTER)
-        time.sleep(5)
-        if check_screen() == Screen.IN_GAME:
-            return True
-    except Exception as e:
-        _raise(e)
+def reset_wait(message):
+    if re.search(r'missed the captcha', message):
+        wait = re.findall(r'\d{1,2}', message)
+        print(wait)
+        if len(wait) == 2:
+            time.sleep(int(wait[0]) * 60 + int(wait[1]))
 
 
-def solve_captcha():
-    while Character().cur_loc()["map_name"] != "Lorencia":
-        time.sleep(2)
-        # ss = cv2.imread(FolderPath.SAMPLE + "boots.png")
-        # show_img(ss)
+def solve_captcha(master=False):
+    n = 0
+    global first_theta
+    seed = random.choice([True, False])
+    while not re.search("Lorencia", Character().cur_loc()[0]):
+        time.sleep(3)
         crop = screenshot(region=(790, 1070, 1320, 1570))
-        show_img(crop)
         captcha_scl = upscale(crop)
         captcha_obj = remove(captcha_scl)
         r, theta = superm2(captcha_obj)
         print(r, theta)
-        if 0.00 <= theta <= 0.03 or theta == 3.14:
-            click_item(item_path=ItemLoc.RS_SEND)
+        if 0.00 <= theta <= 0.03 or theta == 3.14 or first_theta == theta:
+            click(item_loc=ItemLoc.RS_SEND)
+            seed = random.choice([True, False])
+            first_theta = 0.0
             time.sleep(2)
-            if Character().cur_loc()["map_name"] == "Arena":
-                sym_image = draw(crop, r, theta)
+            if re.search('arena', Character().cur_loc()[0].lower()):
+                sym_image = draw(captcha_scl, r, theta)
                 save_img(image=sym_image, name="captcha", suffix="-failed",
                          folder_path=FolderPath.SAMPLE)
+                if not master:
+                    NPC(npc=npc_reset).click_npc()
+                else:
+                    NPC(npc=npc_master).click_npc()
+                # check if reset has been blocked and wait
+                reset_wait(read_message())
+                time.sleep(3)
                 continue
             break
-        click_item(item_path=ItemLoc.RS_RIGHT)
+        if n == 0:
+            first_theta = theta
+        n += 1
+        if seed:
+            click(item_loc=ItemLoc.RS_LEFT)
+        else:
+            click(item_loc=ItemLoc.RS_RIGHT)
+    time.sleep(7)
+    join_server()
     return True
 
 
-def train(character: Character, _map=Map.arena11):
-    MenuChat().move(_map)
-    map_name = " ".join(re.findall("[a-zA-Z]+", _map))
-    time.sleep(2)
-    if character.cur_loc()["map_name"].lower() == map_name:
-        click(item_loc=ItemLoc.MOVE_LEFT)
+def train_point():
+    click(item_loc=ItemLoc.MOVE_LEFT, _click=2, _interval=2)
+    time.sleep(1)
+    click(item_loc=ItemLoc.MOVE_UP)
+
+
+def train(character: Character, map_command=Command.ARENA11):
+    if character.lvl == 600:
+        print("Train Complete: Max LvL")
+        return True
+    chat(map_command)
+    map_name = " ".join(re.findall("[a-zA-Z]+", map_command))
+    time.sleep(3)
+    if character.cur_loc()[0].lower() == map_name:
+        train_point()
         while not character.check_max_lvl():
             pyautogui.mouseDown(x=ItemLoc.ATTACK_EVIL["x"],
                                 y=ItemLoc.ATTACK_EVIL["y"])
-            time.sleep(5)
+            time.sleep(6)
         print("Train Complete: Max LvL")
         return True
     return False
 
 
 def train_after_reset(character: Character):
-    join_server("SPOT5")
-    menu = MenuChat()
-    menu.move(Map.arena11)
-    time.sleep(2)
-    if character.cur_loc()["map_name"].lower() == "Arena":
-        click(item_loc=ItemLoc.MOVE_LEFT)
-        while 1 <= character.cur_lvl()["lvl"] <= 50:
-            pyautogui.mouseDown(x=ItemLoc.ATTACK_HAND["x"],
-                                y=ItemLoc.ATTACK_HAND["y"])
-            time.sleep(5)
-        menu.add_point(Point.energy, character.free_point)
-        while 51 <= character.cur_lvl()["lvl"] <= 100:
-            pyautogui.mouseDown(x=ItemLoc.ATTACK_HAND["x"],
-                                y=ItemLoc.ATTACK_HAND["y"])
-            time.sleep(5)
-        menu.add_point(Point.energy, character.free_point)
-        setting = MenuSetting()
-        setting.open_menu("1", "server")
+    if character.cur_reset() > 0 or character.energy > 3000:
+        return True
+    if character.lvl <= 50:
+        click(item_loc=ItemLoc.SETTING)
+        click(item_loc=ItemLoc.CHANGE_SERVER)
+        time.sleep(6)
+        join_server("SPOT5")
+        chat(Command.ARENA11)
+        time.sleep(3)
+        if character.cur_loc()[0].lower() == "arena":
+            train_point()
+            while 1 <= character.cur_lvl()["lvl"] <= 50:
+                pyautogui.mouseDown(x=ItemLoc.ATTACK_HAND["x"],
+                                    y=ItemLoc.ATTACK_HAND["y"])
+                time.sleep(5)
+            character.add_point(stat=Point.ENERGY)
+        click(item_loc=ItemLoc.SETTING)
+        click(item_loc=ItemLoc.CHANGE_SERVER)
+    else:
+        time.sleep(6)
+        join_server("VIP5")
+        chat(Command.ARENA11)
+        train_point()
+        while character.energy < 3000:
+            pyautogui.mouseDown(x=ItemLoc.ATTACK_EVIL["x"],
+                                y=ItemLoc.ATTACK_EVIL["y"])
+            time.sleep(15)
+            character.cur_stat()
+            if character.agility < character.energy:
+                character.add_point(Point.AGILITY)
+            else:
+                character.add_point(Point.ENERGY)
+            time.sleep(0.5)
         return True
     return False

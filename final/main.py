@@ -1,35 +1,53 @@
-import time
-
+from control import *
 from models.character import Character
-from control import open_app, join_server, check_screen, solve_captcha, \
-    train_after_reset, train
+from models.npc import NPC, npc_reset
+from models.resources import Screen, ItemLoc
 from utils import pop_err, click
-from models.npc import NPC
-from models.resources import ItemLoc, Map, Screen
+
+screen: int
+max_reset = False
 
 
 def main():
-    if open_app() is False:
-        pop_err("Open App Failed")
-    time.sleep(5)
-    character = Character()
-    for _ in range(3):
-        if character.cur_loc():
-            break
-        click(item_loc=ItemLoc.START)
-        if check_screen() != Screen.SERVER:
-            pop_err("Start Failed")
-            break
-        time.sleep(5)
-        join_server()
+    global screen, max_reset
+    # Open App
+    # if open_app() is False:
+    #     pop_err("Open App Failed")
+    #     return False
+    # time.sleep(5)
 
-    character.cur_lvl()
-    character.cur_stat()
-    if character.reset == 0:
-        train_after_reset(character)
-    if train(character):
-        NPC(npc_name="master_reset").click_npc()
-        solve_captcha()
+    screen = check_screen()
+    match screen:
+        case None:
+            pop_err("Open App Failed")
+            return False
+        case Screen.START:
+            click(item_loc=ItemLoc.START)
+            time.sleep(4)
+            join_server()
+        case Screen.SERVER:
+            join_server()
+        case Screen.CHARACTER:
+            select_character()
+    screen = Screen.IN_GAME
+
+    character = Character()
+    while not max_reset:
+        character.check_max_reset()
+        if character.reset < 1:
+            train_after_reset(character)
+        if train(character):
+            character.add_all_point()
+            max_reset = character.check_max_reset()
+            if max_reset:
+                NPC(npc=npc_master).click_npc()
+                if solve_captcha(master=True):
+                    max_reset = False
+                    screen = Screen.SERVER
+                    continue
+            NPC(npc=npc_reset).click_npc()
+            if solve_captcha():
+                screen = Screen.SERVER
 
 
 if __name__ == "__main__":
