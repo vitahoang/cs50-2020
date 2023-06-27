@@ -207,18 +207,19 @@ def solve_captcha(master=False):
         time.sleep(3)
 
         # crop and upscale the captcha
-        crop = screenshot(region=(790, 1070, 1320, 1570))
+        crop = screenshot(region=(780, 1070, 1320, 1570))
         captcha_scl = upscale(crop)
         captcha_obj = remove(captcha_scl)
         r, theta = superm2(captcha_obj)
 
-        # cache theta if this is the first try
-        if not last_theta and not first_theta:
-            last_theta = first_theta = theta
+        # cache theta for the first try
+        if not last_theta:
+            last_theta = theta
+
         rotate_n = cal_rotate_n(theta, last_theta)
+        last_theta = theta
 
         # from 2nd check, assign the theta after calculate the n of rotate
-        last_theta = theta
         print(r, theta)
 
         # if theta = 0 or 3.14, the captcha is at vertical symetry position
@@ -251,7 +252,8 @@ def solve_captcha(master=False):
                 time.sleep(3)
                 continue
             break
-
+        if not first_theta:
+            first_theta = theta
         if seed:
             click(_loc=ItemLoc.RS_LEFT, _click=rotate_n, _interval=0.3)
         else:
