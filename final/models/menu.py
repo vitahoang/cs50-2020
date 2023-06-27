@@ -1,3 +1,17 @@
+"""
+This module provides classes for interacting with game menus. It contains two classes: MenuMap and MenuSetting.
+MenuMap class represents the menu that allows the user to navigate through the game maps. It inherits from the Menu class, which provides the basic functionality for opening the menu. The MenuMap class has three methods for opening the maps in different locations: map_arena, map_lorencia, and map_noria. These methods take a map name as an argument and use pyautogui library to move the mouse cursor and click on the corresponding location on the screen.
+MenuSetting class represents the menu that allows the user to change game settings. It inherits from the Menu class and does not have any additional methods.
+Both classes have a static method open_menu, which takes two arguments: menu_lvl and menu_name. It opens the menu item specified by menu_lvl and menu_name.
+This module also imports three functions from the utils module: _raise, click, and import. These functions are used to handle exceptions and simulate mouse clicks.
+Usage:
+To use this module, import MenuMap and MenuSetting classes and create an instance of the desired class. Then call the appropriate method to open the desired menu item.
+Example:
+from menu import MenuMap
+menu = MenuMap()
+menu.map_arena("arena11")
+"""
+
 import time
 
 import pyautogui

@@ -82,33 +82,36 @@ INVENTORY_SLOT = {
     "region": (910, 1472, 1968, 2530)
 }
 
+SUBMIT_CAPTCHA = {
+    "name": "submit_captcha",
+    "img_path": "submit-captcha.png",
+    "screen": Screen.IN_GAME,
+    "loc": {"x": 724, "y": 600},
+    "region": (1164, 1272, 1302, 1572)
+}
+
 
 class Item:
-    name: str
-    img_path: str
-    screen: str
-    loc: {}
-    region: ()
 
     def __init__(self, item):
-        self.name = item["name"]
-        self.img_path = item["img_path"]
-        self.screen = item["screen"]
-        self.loc = item["loc"]
-        self.region = item["region"]
+        self.name: str = item["name"]
+        self.img_path: str = item["img_path"]
+        self.screen: str = item["screen"]
+        self.loc: dict = item["loc"]
+        self.region: tuple = item["region"]
 
     def find_item(self, item_path: str = None, region: tuple = None,
-                  preview=False):
+                  preview=False, confidence=0.7, timeout=10):
         """find item given an image then return its central location on
         screen"""
         path = FolderPath.ITEM + \
                self.img_path if not item_path else item_path
         print(f"Finding: {path}")
         target_region = self.region if not region else region
-        result = None
-        for _ in range(3):
+        query_img = cv2.imread(path)
+        start_time = time.time()
+        while time.time() - start_time < timeout:
             time.sleep(3)
-            query_img = cv2.imread(path)
             target_img = screenshot(region=target_region)
             if preview:
                 show_img(query_img)
@@ -116,17 +119,15 @@ class Item:
             result = pyscreeze.locate(needleImage=query_img,
                                       haystackImage=target_img,
                                       grayscale=False,
-                                      confidence=0.7)
+                                      confidence=confidence)
             if result:
-                break
-        if result is None:
-            print("Item not found")
-            return False
-        loc_x, loc_y = pyautogui.center(result)
-        loc_x += target_region[2]
-        loc_y += target_region[0]
-        print(loc_x / 2, loc_y / 2)
-        return {"x": loc_x / 2, "y": loc_y / 2}
+                loc_x, loc_y = pyautogui.center(result)
+                loc_x += target_region[2]
+                loc_y += target_region[0]
+                print(loc_x / 2, loc_y / 2)
+                return {"x": loc_x / 2, "y": loc_y / 2}
+        print("Item not found")
+        return False
 
     def click_item(self, find=True, pick_up=False):
         try:

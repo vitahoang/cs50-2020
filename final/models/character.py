@@ -7,6 +7,32 @@ from utils import screenshot, _raise, click, chat
 
 
 class Character:
+    """
+    Represents a game character with attributes such as level, stats,
+    and location.
+     Attributes:
+        class_name (str): The class of the character.
+        character_name (str): The name of the character.
+        current_loc (dict): The current location of the character.
+        lvl (int): The level of the character.
+        reset (int): The reset count of the character.
+        total_point (int): The total points of the character.
+        free_point (int): The free points of the character.
+        added_point (int): The added points of the character.
+        strength (int): The strength of the character.
+        agility (int): The agility of the character.
+        life (int): The life of the character.
+        energy (int): The energy of the character.
+     Methods:
+        cur_lvl(menu=True): Updates the level and free points of the character.
+        cur_stat(): Updates the stats of the character.
+        cur_reset(): Updates the reset count of the character.
+        cur_loc(): Updates the location of the character.
+        check_max_lvl(): Checks if the character has reached the maximum level.
+        add_point(stat): Adds free points to the specified stat.
+        check_max_reset(): Checks if the character has reached the maximum reset count.
+        add_all_point(): Adds all free points to the character's stats.
+    """
     class_name = ""
     character_name = ""
     current_loc = {}
@@ -29,16 +55,25 @@ class Character:
         self.current_loc = {}
 
     def cur_lvl(self, menu=True):
+        """
+        Update the character's level and free points based on a screenshot
+        of the game's status menu.
+        """
+
+        # If menu is True, click on the STAT_MENU item
         if menu:
             click(_loc=ItemLoc.STAT_MENU)
+        # Take a screenshot and extract the level information
         ss = screenshot()
         stat_img = ss[450:490, 1430:1906]
         info = extract_text_from(stat_img)
         info = [i for i in info.replace("\n", " ").split(" ") if i != ""]
         print(f"Level info: {info}")
+        # If the information has less than 2 elements, return False
         if len(info) < 2:
             print("LvL [info] has less than 2 elements")
             return False
+        # Try to extract the level and free point information
         try:
             self.lvl = int(info[1])
             self.free_point = 0
@@ -59,6 +94,10 @@ class Character:
         return False
 
     def cur_stat(self):
+        """
+        Update the character's stats (strength, agility, life, and energy)
+        based on a screenshot of the game's status menu.
+        """
         click(_loc=ItemLoc.STAT_MENU)
         if not self.cur_lvl(menu=False):
             return False
@@ -96,6 +135,10 @@ class Character:
         return False
 
     def cur_reset(self):
+        """
+        Update the character's reset count based on the current stats and
+        free points.
+        """
         try:
             self.cur_stat()
             if not self.added_point:
@@ -111,6 +154,10 @@ class Character:
             _raise(e)
 
     def cur_loc(self):
+        """
+        Update the character's current location based on a screenshot of
+        the game's location information.
+        """
         time.sleep(1)
         ss = screenshot()
         loc_img = ss[10:64, 2290:2640]
@@ -143,6 +190,9 @@ class Character:
 
     @staticmethod
     def check_max_lvl():
+        """
+        Check if the character has reached the maximum level based on a screenshot of the game's message alert.
+        """
         ss = screenshot()
         message = ss[1500:1645, 800:1495]
         alert = extract_text_from(message).replace("\n", "")
@@ -153,6 +203,10 @@ class Character:
         return False
 
     def add_point(self, stat: str):
+        """
+        Add free points to the specified stat if possible, up to the
+        maximum allowed points.
+        """
         if self.free_point == 0:
             print("No free point to add")
             return False
@@ -171,6 +225,10 @@ class Character:
         return False
 
     def check_max_reset(self):
+        """
+        Check if the character has reached the maximum reset count based
+        on the current level and stats.
+        """
         self.cur_reset()
         try:
             if self.lvl < 600:
@@ -182,6 +240,10 @@ class Character:
             _raise(e)
 
     def add_all_point(self):
+        """
+        Add all available free points to the character's stats,
+        prioritizing agility, energy, strength, and life in that order.
+        """
         while not self.check_max_reset() and self.free_point != 0:
             if self.add_point(Point.AGILITY):
                 break

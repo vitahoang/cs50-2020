@@ -1,3 +1,14 @@
+"""
+Performs symmetry detection on an image using SIFT for keypoint detection and a voting mechanism in the Hough space for line of symmetry detection.
+First, it computes the keypoints and descriptors of the image and its mirror image. Then, it matches these keypoints and for each match, it computes the midpoint, the angle with the x-axis, and the 'r' value in polar coordinates. It then votes for this line in the Hough space using a weight computed from the Reisfeld function and the 'S' function.
+Finally, it returns the coordinates of the most voted for line in the Hough space.
+Note: To visualize the voting process in the Hough space, set plot=True. This will display a 3D histogram where the most voted for line of symmetry is indicated by bright orange/red. Manually get the coordinates, and re-run but this time uncomment draw/imshow.
+Parameters:
+    image (ndarray): The input image.
+    plot (bool): If True, plots a 3D histogram of the voting process in the Hough space.
+Returns:
+    tuple: The coordinates of the most voted for line in the Hough space.
+"""
 import cv2
 import matplotlib.pyplot as plt
 import numpy as np
@@ -38,14 +49,6 @@ def angle_with_x_axis(i, j):
 
 
 def superm2(image, plot=False):
-    """Performs the symmetry detection on image.
-    Somewhat clunky at the moment -- first you 
-    must comment out the last two lines: the 
-    call to `draw` and `cv2.imshow` and uncomment
-    `hex` call. This will show a 3d histogram, where
-    bright orange/red is the maximum (most voted for
-    line of symmetry). Manually get the coordinates,
-    and re-run but this time uncomment draw/imshow."""
     mimage = np.fliplr(image)
     kp1, des1 = sift.detectAndCompute(image, None)
     kp2, des2 = sift.detectAndCompute(mimage, None)

@@ -22,7 +22,16 @@ last_theta = None
 
 
 def open_app():
-    """open MUAway app"""
+    """
+        Opens the MuAwaY app and enters full screen mode.
+         Args:
+            None
+         Returns:
+            bool: True if the app was successfully opened and full screen
+            mode was entered, False otherwise.
+         Raises:
+            None
+    """
     p = Popen(['osascript', '-'], stdin=PIPE, stdout=PIPE, stderr=PIPE,
               universal_newlines=True)
     open_scpt = '''
@@ -157,6 +166,13 @@ def move_character(x=1, y=1):
 
 
 def read_message():
+    """
+    Takes a screenshot of a chat window and extracts the text from it.
+     Returns:
+        str: The extracted text with newlines removed.
+     Raises:
+        None
+    """
     ss = screenshot()
     chat_window = ss[1500:1645, 800:1495]
     message = extract_text_from(chat_window).replace("\n", "")
@@ -165,6 +181,15 @@ def read_message():
 
 
 def reset_wait(message):
+    """
+    Resets the wait time if the message contains 'missed the captcha'.
+     Args:
+        message (str): The message to check for the presence of 'missed the captcha'.
+     Returns:
+        None
+     Raises:
+        None
+    """
     if re.search(r'missed the captcha', message):
         wait = re.findall(r'\d{1,2}', message)
         print(wait)
@@ -174,7 +199,6 @@ def reset_wait(message):
 
 def solve_captcha(master=False):
     global first_theta, last_theta
-    first_try = True
 
     # random seed to choose which side to rotate the captcha image
     seed = random.choice([True, False])
@@ -187,41 +211,51 @@ def solve_captcha(master=False):
         captcha_scl = upscale(crop)
         captcha_obj = remove(captcha_scl)
         r, theta = superm2(captcha_obj)
-        if not last_theta:
-            last_theta = theta
+
+        # cache theta if this is the first try
+        if not last_theta and not first_theta:
+            last_theta = first_theta = theta
         rotate_n = cal_rotate_n(theta, last_theta)
+
+        # from 2nd check, assign the theta after calculate the n of rotate
+        last_theta = theta
         print(r, theta)
 
         # if theta = 0 or 3.14, the captcha is at vertical symetry position
         if 0.00 <= theta <= 0.03 or theta == 3.14 or first_theta == theta:
+            # check if captcha window is open
+            if not Item(SUBMIT_CAPTCHA).find_item():
+                if master:
+                    NPC(npc=npc_master).click_npc()
+                else:
+                    NPC(npc=npc_reset).click_npc()
+
+                # check if reset has been blocked and wait
+                if not Item(SUBMIT_CAPTCHA).find_item():
+                    reset_wait(read_message())
+                continue
+
+            # submit captcha
             click(_loc=ItemLoc.RS_SEND)
 
-            # reset seed and first theta
+            # reset seed and theta
             seed = random.choice([True, False])
-            first_try = True
             first_theta = None
+            last_theta = None
 
             time.sleep(2)
-            if re.search('arena', Character().cur_loc()[0].lower()):
+            if not re.search('lorencia', Character().cur_loc()[0].lower()):
                 sym_image = draw(captcha_scl, r, theta)
                 save_img(image=sym_image, name="captcha", suffix="-failed",
                          folder_path=FolderPath.SAMPLE)
-                if not master:
-                    NPC(npc=npc_reset).click_npc()
-                else:
-                    NPC(npc=npc_master).click_npc()
-                # check if reset has been blocked and wait
-                reset_wait(read_message())
                 time.sleep(3)
                 continue
             break
-        if first_try:
-            first_theta = theta
-            first_try = False
+
         if seed:
-            click(_loc=ItemLoc.RS_LEFT, _click=rotate_n)
+            click(_loc=ItemLoc.RS_LEFT, _click=rotate_n, _interval=0.3)
         else:
-            click(_loc=ItemLoc.RS_RIGHT, _click=rotate_n)
+            click(_loc=ItemLoc.RS_RIGHT, _click=rotate_n, _interval=0.3)
     time.sleep(7)
     join_server()
     return True
@@ -229,8 +263,8 @@ def solve_captcha(master=False):
 
 def train_point():
     click(_loc=ItemLoc.MOVE_LEFT, _click=2, _interval=2)
-    time.sleep(1)
     click(_loc=ItemLoc.MOVE_UP)
+    time.sleep(1)
 
 
 def train(character: Character, map_command=Command.ARENA11):
@@ -288,12 +322,12 @@ def train_after_reset(character: Character):
         while character.energy < 3000:
             pyautogui.mouseDown(x=ItemLoc.ATTACK_EVIL["x"],
                                 y=ItemLoc.ATTACK_EVIL["y"])
-            time.sleep(15)
+            time.sleep(30)
             character.cur_stat()
             if character.agility < character.energy:
                 character.add_point(Point.AGILITY)
             else:
                 character.add_point(Point.ENERGY)
-            time.sleep(0.5)
+            time.sleep(2)
         return True
     return False
