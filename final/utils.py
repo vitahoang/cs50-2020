@@ -133,13 +133,14 @@ def find_item(item_path: str, region: tuple = None, wait=3):
 def chat(*args: str):
     try:
         click(_loc=ItemLoc.CHAT)
-        time.sleep(0.5)
+        time.sleep(1)
         chars = []
         for arg in args:
             for c in arg:
                 chars.append(c)
         pyautogui.write(chars)
-        time.sleep(0.5)
+        time.sleep(1)
+        print(chars)
         pyautogui.press("enter")
         time.sleep(0.5)
     except Exception as e:

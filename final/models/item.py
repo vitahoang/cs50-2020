@@ -101,7 +101,7 @@ class Item:
         self.region: tuple = item["region"]
 
     def find_item(self, item_path: str = None, region: tuple = None,
-                  preview=False, confidence=0.7, timeout=10):
+                  preview=False, confidence=0.7, timeout=5):
         """find item given an image then return its central location on
         screen"""
         path = FolderPath.ITEM + \
@@ -111,7 +111,7 @@ class Item:
         query_img = cv2.imread(path)
         start_time = time.time()
         while time.time() - start_time < timeout:
-            time.sleep(3)
+            time.sleep(1)
             target_img = screenshot(region=target_region)
             if preview:
                 show_img(query_img)

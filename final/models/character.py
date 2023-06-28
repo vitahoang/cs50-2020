@@ -53,6 +53,7 @@ class Character:
         self.class_name = ""
         self.character_name = ""
         self.current_loc = {}
+        self.added_point = 0
 
     def cur_lvl(self, menu=True):
         """
@@ -202,7 +203,7 @@ class Character:
             return True
         return False
 
-    def add_point(self, stat: str):
+    def add_point(self, stat: str, p: int = None):
         """
         Add free points to the specified stat if possible, up to the
         maximum allowed points.
@@ -212,6 +213,8 @@ class Character:
             return False
         p_max = self.MAX_POINTS
         p_free = self.free_point
+        if p:
+            p_free = p if p < self.free_point else self.free_point
         cur_p_stat = eval("self." + Point().look_up_by_val(stat).lower())
 
         if cur_p_stat < p_max:
@@ -245,12 +248,16 @@ class Character:
         prioritizing agility, energy, strength, and life in that order.
         """
         while not self.check_max_reset() and self.free_point != 0:
+            self.cur_stat()
+            if self.strength < 1000:
+                self.add_point(Point.STRENGTH, 1000)
+                continue
             if self.add_point(Point.AGILITY):
-                break
+                continue
             if self.add_point(Point.ENERGY):
-                break
+                continue
             if self.add_point(Point.STRENGTH):
-                break
+                continue
             if self.add_point(Point.LIFE):
-                break
+                continue
         return True

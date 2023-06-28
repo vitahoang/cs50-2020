@@ -52,6 +52,7 @@ class ItemLoc(Resource):
     VIP = {"x": 720, "y": 428}
     SPOT = {"x": 724, "y": 450}
     SPOT5 = {"x": 890, "y": 480}
+    SPOT6 = {"x": 909, "y": 527}
     VIP4 = {"x": 896, "y": 462}
     VIP5 = {"x": 879, "y": 493}
     C_MAGIC = {"x": 1044, "y": 565}
@@ -64,6 +65,7 @@ class ItemLoc(Resource):
     MOVE_UP = {"x": 256, "y": 683}
     MOVE_DOWN = {"x": 258, "y": 839}
     ATTACK_EVIL = {"x": 1244, "y": 809}
+    ATTACK_TWISTING = {"x": 1119, "y": 846}
     STAT_MENU = {"x": 1287, "y": 118}
     ATTACK_HAND = {"x": 1113, "y": 766}
     CHAT = {"x": 1027, "y": 825}

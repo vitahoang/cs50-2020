@@ -195,6 +195,8 @@ def reset_wait(message):
         print(wait)
         if len(wait) == 2:
             time.sleep(int(wait[0]) * 60 + int(wait[1]))
+            return True
+    return False
 
 
 def solve_captcha(master=False):
@@ -233,7 +235,8 @@ def solve_captcha(master=False):
 
                 # check if reset has been blocked and wait
                 if not Item(SUBMIT_CAPTCHA).find_item():
-                    reset_wait(read_message())
+                    if not reset_wait(read_message()):
+                        break
                 continue
 
             # submit captcha
@@ -251,6 +254,10 @@ def solve_captcha(master=False):
                          folder_path=FolderPath.SAMPLE)
                 time.sleep(3)
                 continue
+            sym_image = draw(captcha_scl, r, theta)
+            save_img(image=sym_image, name="captcha", suffix="-success",
+                     folder_path=FolderPath.SAMPLE)
+            time.sleep(3)
             break
         if not first_theta:
             first_theta = theta
@@ -265,7 +272,7 @@ def solve_captcha(master=False):
 
 def train_point():
     click(_loc=ItemLoc.MOVE_LEFT, _click=2, _interval=2)
-    click(_loc=ItemLoc.MOVE_UP)
+    click(_loc=ItemLoc.MOVE_UP, _click=2, _interval=2)
     time.sleep(1)
 
 
@@ -279,8 +286,12 @@ def train(character: Character, map_command=Command.ARENA11):
     if character.cur_loc()[0].lower() == map_name:
         train_point()
         while not character.check_max_lvl():
-            pyautogui.mouseDown(x=ItemLoc.ATTACK_EVIL["x"],
-                                y=ItemLoc.ATTACK_EVIL["y"])
+            if character.agility > 20000:
+                pyautogui.mouseDown(x=ItemLoc.ATTACK_TWISTING["x"],
+                                    y=ItemLoc.ATTACK_TWISTING["y"])
+            else:
+                pyautogui.mouseDown(x=ItemLoc.ATTACK_EVIL["x"],
+                                    y=ItemLoc.ATTACK_EVIL["y"])
             time.sleep(6)
         print("Train Complete: Max LvL")
         return True
@@ -288,23 +299,22 @@ def train(character: Character, map_command=Command.ARENA11):
 
 
 def train_after_reset(character: Character):
-    if character.cur_reset() > 0 or character.energy > 3000:
-        return True
+    if character.cur_reset() > 0 or character.energy > 2000:
+        return False
+
+    # rearrange box after reset
     click(_loc=ItemLoc.INVENTORY)
     box = Item(INVENTORY_SLOT)
     box.click_item(find=False, pick_up=True)
     box.click_item()
     click(_loc=ItemLoc.INVENTORY)
 
-    box = Item(INVENTORY_SLOT)
-    box.click_item(find=False, pick_up=True)
-    box.click_item()
-
+    # first train to lv 50
     if character.lvl <= 50:
         click(_loc=ItemLoc.SETTING)
         click(_loc=ItemLoc.CHANGE_SERVER)
         time.sleep(6)
-        join_server("SPOT5")
+        join_server("SPOT6")
         chat(Command.ARENA11)
         time.sleep(3)
         if character.cur_loc()[0].lower() == "arena":
@@ -314,22 +324,23 @@ def train_after_reset(character: Character):
                                     y=ItemLoc.ATTACK_HAND["y"])
                 time.sleep(5)
             character.add_point(stat=Point.ENERGY)
+        # change server after training
         click(_loc=ItemLoc.SETTING)
         click(_loc=ItemLoc.CHANGE_SERVER)
-    else:
-        time.sleep(6)
-        join_server("VIP5")
-        chat(Command.ARENA11)
-        train_point()
-        while character.energy < 3000:
-            pyautogui.mouseDown(x=ItemLoc.ATTACK_EVIL["x"],
-                                y=ItemLoc.ATTACK_EVIL["y"])
-            time.sleep(30)
-            character.cur_stat()
-            if character.agility < character.energy:
-                character.add_point(Point.AGILITY)
-            else:
-                character.add_point(Point.ENERGY)
-            time.sleep(2)
-        return True
-    return False
+
+    # then train to level that has efficient points
+    time.sleep(6)
+    join_server("VIP5")
+    chat(Command.ARENA11)
+    train_point()
+    while character.energy < 3000:
+        pyautogui.mouseDown(x=ItemLoc.ATTACK_EVIL["x"],
+                            y=ItemLoc.ATTACK_EVIL["y"])
+        time.sleep(30)
+        character.cur_stat()
+        if character.agility < character.energy:
+            character.add_point(Point.AGILITY)
+        else:
+            character.add_point(Point.ENERGY)
+        time.sleep(2)
+    return True
