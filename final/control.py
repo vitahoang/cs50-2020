@@ -117,7 +117,7 @@ def log_in():
             return screen
 
 
-def join_server(server="VIP5"):
+def join_server(server="VIP4"):
     if not check_screen(Screen.SERVER):
         return False
     try:
@@ -128,9 +128,9 @@ def join_server(server="VIP5"):
         sub_server_name = server_name + _number
         click(_loc=eval(server_name))
         click(_loc=eval(sub_server_name))
-        time.sleep(5)
+        time.sleep(4)
         select_character()
-        time.sleep(5)
+        time.sleep(3)
         if check_screen(Screen.IN_GAME) == Screen.IN_GAME:
             return True
     except Exception as e:
@@ -142,7 +142,7 @@ def select_character(_char=ItemLoc.C_MAGIC):
     try:
         click(_loc=_char)
         click(_loc=ItemLoc.C_ENTER)
-        time.sleep(4)
+        time.sleep(3)
         if check_screen(Screen.IN_GAME) == Screen.IN_GAME:
             return True
     except Exception as e:
@@ -225,7 +225,7 @@ def solve_captcha(master=False):
         print(r, theta)
 
         # if theta = 0 or 3.14, the captcha is at vertical symetry position
-        if 0.00 <= theta <= 0.03 or theta == 3.14 or first_theta == theta:
+        if 0.00 <= theta <= 0.06 or theta == 3.14 or first_theta == theta:
             # check if captcha window is open
             if not Item(SUBMIT_CAPTCHA).find_item():
                 if master:
@@ -270,13 +270,39 @@ def solve_captcha(master=False):
     return True
 
 
-def train_point():
-    click(_loc=ItemLoc.MOVE_LEFT, _click=2, _interval=2)
-    click(_loc=ItemLoc.MOVE_UP, _click=2, _interval=2)
+def train_point_1():
+    click(_loc=ItemLoc.MOVE_UP)
     time.sleep(1)
 
 
-def train(character: Character, map_command=Command.ARENA11):
+def train_point_2():
+    click(_loc=ItemLoc.MOVE_LEFT)
+    time.sleep(2)
+    click(_loc=ItemLoc.MOVE_LEFT)
+    time.sleep(2)
+    click(_loc=ItemLoc.MOVE_LEFT)
+    time.sleep(2)
+
+
+def combo():
+    pyautogui.mouseUp()
+    pyautogui.mouseDown(x=ItemLoc.ATTACK_EVIL["x"],
+                        y=ItemLoc.ATTACK_EVIL["y"])
+    time.sleep(2)
+    pyautogui.mouseUp()
+    pyautogui.mouseDown(x=ItemLoc.ATTACK_TWISTING["x"],
+                        y=ItemLoc.ATTACK_TWISTING["y"])
+    time.sleep(5)
+
+
+def combo_evil():
+    pyautogui.mouseUp()
+    pyautogui.mouseDown(x=ItemLoc.ATTACK_EVIL["x"],
+                        y=ItemLoc.ATTACK_EVIL["y"])
+    time.sleep(5)
+
+
+def train(character: Character, map_command=Command.ARENA7):
     if character.lvl == 600:
         print("Train Complete: Max LvL")
         return True
@@ -284,15 +310,10 @@ def train(character: Character, map_command=Command.ARENA11):
     map_name = " ".join(re.findall("[a-zA-Z]+", map_command))
     time.sleep(3)
     if character.cur_loc()[0].lower() == map_name:
-        train_point()
+        train_point_2()
         while not character.check_max_lvl():
-            if character.agility > 20000:
-                pyautogui.mouseDown(x=ItemLoc.ATTACK_TWISTING["x"],
-                                    y=ItemLoc.ATTACK_TWISTING["y"])
-            else:
-                pyautogui.mouseDown(x=ItemLoc.ATTACK_EVIL["x"],
-                                    y=ItemLoc.ATTACK_EVIL["y"])
-            time.sleep(6)
+            combo_evil()
+            character.check_party()
         print("Train Complete: Max LvL")
         return True
     return False
@@ -311,36 +332,29 @@ def train_after_reset(character: Character):
 
     # first train to lv 50
     if character.lvl <= 50:
-        click(_loc=ItemLoc.SETTING)
-        click(_loc=ItemLoc.CHANGE_SERVER)
-        time.sleep(6)
-        join_server("SPOT6")
         chat(Command.ARENA11)
         time.sleep(3)
         if character.cur_loc()[0].lower() == "arena":
-            train_point()
+            train_point_1()
             while 1 <= character.cur_lvl()["lvl"] <= 50:
                 pyautogui.mouseDown(x=ItemLoc.ATTACK_HAND["x"],
                                     y=ItemLoc.ATTACK_HAND["y"])
-                time.sleep(5)
-            character.add_point(stat=Point.ENERGY)
-        # change server after training
-        click(_loc=ItemLoc.SETTING)
-        click(_loc=ItemLoc.CHANGE_SERVER)
+                time.sleep(10)
+                character.check_party()
+            character.add_point(stat=Point.ENERGY, p=400)
+            character.add_point(stat=Point.AGILITY)
 
     # then train to level that has efficient points
-    time.sleep(6)
-    join_server("VIP5")
-    chat(Command.ARENA11)
-    train_point()
-    while character.energy < 3000:
-        pyautogui.mouseDown(x=ItemLoc.ATTACK_EVIL["x"],
-                            y=ItemLoc.ATTACK_EVIL["y"])
-        time.sleep(30)
+    chat(Command.ARENA7)
+    train_point_1()
+    while character.energy < 2000:
+        combo()
+        time.sleep(10)
         character.cur_stat()
-        if character.agility < character.energy:
+        if character.agility < 4000:
             character.add_point(Point.AGILITY)
         else:
             character.add_point(Point.ENERGY)
         time.sleep(2)
+        character.check_party()
     return True

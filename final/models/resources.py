@@ -33,6 +33,7 @@ class Point(Resource):
 
 class Command(Resource):
     ARENA11 = "/arena11"
+    ARENA7 = "/arena7"
     RM = "/npcmr"
     PK = "/npcpk"
     NORIA = "/move Noria"
@@ -55,7 +56,7 @@ class ItemLoc(Resource):
     SPOT6 = {"x": 909, "y": 527}
     VIP4 = {"x": 896, "y": 462}
     VIP5 = {"x": 879, "y": 493}
-    C_MAGIC = {"x": 1044, "y": 565}
+    C_MAGIC = {"x": 1042, "y": 522}
     C_ENTER = {"x": 723, "y": 777}
     RS_RIGHT = {"x": 559, "y": 461}
     RS_LEFT = {"x": 885, "y": 465}
@@ -72,6 +73,8 @@ class ItemLoc(Resource):
     SETTING = {"x": 1066, "y": 38}
     CHANGE_SERVER = {"x": 724, "y": 385}
     INVENTORY = {"x": 1282, "y": 66}
+    PARTY_CANCEL = {"x": 769, "y": 546}
+    PARTY_OK = {"x": 671, "y": 544}
 
 
 a = Command()

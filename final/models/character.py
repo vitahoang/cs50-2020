@@ -104,13 +104,18 @@ class Character:
             return False
         ss = screenshot()
         stat_img = ss[550:1290, 1430:1950]
-        info = extract_text_from(stat_img).replace(" ", "")
-        _regex = re.compile(r'^[a-zA-Z]{1,8}:(\d+)\n', re.MULTILINE)
+        info = extract_text_from(stat_img) \
+            .replace(" ", "") \
+            .replace("—", "") \
+            .replace("&", "")
+        print(info)
+        _regex = re.compile(r'^[a-zA-Z]{1,8}:(\d{1,5})$', re.MULTILINE)
         info = re.findall(_regex, info)
         info = [int(i) for i in info]
         print(f"Stat info: {info}")
         if len(info) < 4:
             print(f"Stat [info] only has {len(info)} element(s)")
+            click(_loc=ItemLoc.STAT_MENU)
             return False
         try:
             stat = {
@@ -198,8 +203,23 @@ class Character:
         message = ss[1500:1645, 800:1495]
         alert = extract_text_from(message).replace("\n", "")
         print(alert)
-        if re.search("You have reached a maximum level", alert):
+        if re.search("maximum level", alert):
             print("Train Complete: Max LvL")
+            return True
+        return False
+
+    @staticmethod
+    def check_party():
+        """
+        Check if receiving party request
+        """
+        ss = screenshot()
+        message = ss[640:1158, 1024:1860]
+        alert = extract_text_from(message).replace("\n", "")
+        print(alert)
+        if re.search("party", alert):
+            print("Refuse Party")
+            click(_loc=ItemLoc.PARTY_CANCEL)
             return True
         return False
 
@@ -248,16 +268,16 @@ class Character:
         prioritizing agility, energy, strength, and life in that order.
         """
         while not self.check_max_reset() and self.free_point != 0:
-            self.cur_stat()
-            if self.strength < 1000:
-                self.add_point(Point.STRENGTH, 1000)
+            if self.add_point(Point.ENERGY):
+                self.cur_stat()
                 continue
             if self.add_point(Point.AGILITY):
-                continue
-            if self.add_point(Point.ENERGY):
-                continue
-            if self.add_point(Point.STRENGTH):
+                self.cur_stat()
                 continue
             if self.add_point(Point.LIFE):
+                self.cur_stat()
+                break
+            if self.add_point(Point.STRENGTH):
+                self.cur_stat()
                 continue
         return True

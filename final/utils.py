@@ -1,7 +1,10 @@
+import multiprocessing
+import multiprocessing.pool
 import sys
 import time
 import traceback
 from datetime import datetime
+from functools import wraps
 
 import cv2
 import mss
@@ -93,7 +96,7 @@ def click(x: int = 0,
           y: int = 0,
           _loc: dict = None,
           _click: int = 1,
-          _interval=0.0):
+          _interval=0.1):
     """click to point(x,y) with sleep"""
     if _loc:
         pyautogui.moveTo(_loc["x"], _loc["y"])
@@ -133,13 +136,13 @@ def find_item(item_path: str, region: tuple = None, wait=3):
 def chat(*args: str):
     try:
         click(_loc=ItemLoc.CHAT)
-        time.sleep(1)
+        time.sleep(0.3)
         chars = []
         for arg in args:
             for c in arg:
                 chars.append(c)
         pyautogui.write(chars)
-        time.sleep(1)
+        time.sleep(0.3)
         print(chars)
         pyautogui.press("enter")
         time.sleep(0.5)
@@ -157,3 +160,5 @@ def cal_rotate_n(new_theta: int, last_theta: int):
     if new_theta - last_theta < 0:
         rotate_n = int(new_theta // change)
         return 1 if rotate_n < 1 else rotate_n
+
+

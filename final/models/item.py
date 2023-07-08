@@ -101,7 +101,7 @@ class Item:
         self.region: tuple = item["region"]
 
     def find_item(self, item_path: str = None, region: tuple = None,
-                  preview=False, confidence=0.7, timeout=5):
+                  preview=False, confidence=0.7, timeout=12):
         """find item given an image then return its central location on
         screen"""
         path = FolderPath.ITEM + \
