@@ -272,7 +272,11 @@ def solve_captcha(master=False):
 
 
 def train_point_1():
-    click(_loc=ItemLoc.MOVE_UP)
+    click(_loc=ItemLoc.MOVE_RIGHT)
+    time.sleep(1)
+    click(_loc=ItemLoc.MOVE_RIGHT)
+    time.sleep(1)
+    click(_loc=ItemLoc.MOVE_RIGHT)
     time.sleep(1)
 
 
@@ -336,7 +340,7 @@ def train_after_reset(character: Character):
         chat(Command.ARENA11)
         time.sleep(3)
         if character.cur_loc()[0].lower() == "arena":
-            train_point_1()
+            train_point_2()
             while 1 <= character.cur_lvl()["lvl"] <= 50:
                 pyautogui.mouseDown(x=ItemLoc.ATTACK_HAND["x"],
                                     y=ItemLoc.ATTACK_HAND["y"])
