@@ -247,3 +247,6 @@ fabric.properties
 # idea folder, uncomment if you don't need it
 .idea
 pset09/finance/node_modules
+
+# Sample folder
+final/samples
