@@ -4,7 +4,7 @@ from control import *
 from models.character import Character
 from models.npc import NPC, npc_reset
 from models.resources import Screen, ItemLoc
-from utils import pop_err, click
+from utils import click
 
 # global var
 screen: int
@@ -13,34 +13,36 @@ max_reset = False
 # Configure logging
 logging.basicConfig(filename='app.log', filemode='w',
                     datefmt='%d-%b-%y %H:%M:%S',
-                    format='%(asctime):%(name)s:%(levelname)s:%(message)s')
-logging.warning('This will get logged to a file')
+                    format='### %(asctime)s:%(name)s:%(levelname)s:%('
+                           'message)s')
+logging.info('This will get logged to a file')
 
 
 def main():
-    try:
-        while True:
-            print("Start MuAway Auto App")
+    while True:
+        try:
+            logging.info("Start MuAway Auto App")
             run()
-    except Exception as e:
-        logging.error("Exception", exc_info=True)
-        run()
+        except Exception as e:
+            logging.critical(e, exc_info=True)
+            time.sleep(5)
 
 
 def run():
     global screen, max_reset
-    # Open App
-    # if open_app() is False:
-    #     pop_err("Open App Failed")
-    #     return False
-    # time.sleep(5)
-    raise SyntaxError
 
+    # check which screen is showing
     screen = check_screen()
-    match screen:
-        case None:
-            pop_err("Open App Failed")
+    # if failed, try to open the app
+    if not screen:
+        if open_app() is False:
+            logging.error("Open App Failed")
             return False
+        time.sleep(5)
+        screen = check_screen(screen=Screen.START)
+
+    # else, login
+    match screen:
         case Screen.START:
             click(_loc=ItemLoc.START)
             time.sleep(4)

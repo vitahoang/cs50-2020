@@ -225,7 +225,8 @@ def solve_captcha(master=False):
         print(r, theta)
 
         # if theta = 0 or 3.14, the captcha is at vertical symetry position
-        if 0.00 <= theta <= 0.06 or theta == 3.14 or first_theta == theta:
+        if 0.00 <= theta <= 0.06 or 3.08 <= theta <= 3.14 \
+                or first_theta == theta:
             # check if captcha window is open
             if not Item(SUBMIT_CAPTCHA).find_item():
                 if master:
@@ -348,10 +349,10 @@ def train_after_reset(character: Character):
     chat(Command.ARENA7)
     train_point_1()
     while character.energy < 2000:
-        combo()
+        combo_evil()
         time.sleep(10)
         character.cur_stat()
-        if character.agility < 4000:
+        if character.agility < 3000:
             character.add_point(Point.AGILITY)
         else:
             character.add_point(Point.ENERGY)
