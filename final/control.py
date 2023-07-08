@@ -282,11 +282,11 @@ def train_point_1():
 
 def train_point_2():
     click(_loc=ItemLoc.MOVE_LEFT)
-    time.sleep(2)
+    time.sleep(1)
     click(_loc=ItemLoc.MOVE_LEFT)
-    time.sleep(2)
+    time.sleep(1)
     click(_loc=ItemLoc.MOVE_LEFT)
-    time.sleep(2)
+    time.sleep(1)
 
 
 def combo():
