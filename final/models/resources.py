@@ -75,6 +75,7 @@ class ItemLoc(Resource):
     INVENTORY = {"x": 1282, "y": 66}
     PARTY_CANCEL = {"x": 769, "y": 546}
     PARTY_OK = {"x": 671, "y": 544}
+    DISCONNECTED = {"x": 721, "y": 543}
 
 
 a = Command()

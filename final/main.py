@@ -32,9 +32,10 @@ def run():
     global screen, max_reset
 
     # check which screen is showing
+    check_party()
     screen = check_screen()
     # if failed, try to open the app
-    if not screen:
+    if not screen or check_disconnected():
         if open_app() is False:
             logging.error("Open App Failed")
             return False

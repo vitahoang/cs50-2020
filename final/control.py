@@ -117,7 +117,7 @@ def log_in():
             return screen
 
 
-def join_server(server="VIP4"):
+def join_server(server="VIP5"):
     if not check_screen(Screen.SERVER):
         return False
     try:
@@ -163,6 +163,36 @@ def move_character(x=1, y=1):
     if y < 0:
         for _ in range(abs(x)):
             click(642, 643)
+
+
+def check_party():
+    """
+    Check if receiving party request
+    """
+    ss = screenshot()
+    message = ss[640:1158, 1024:1860]
+    alert = extract_text_from(message).replace("\n", "")
+    print(alert)
+    if re.search("party", alert):
+        print("Refuse Party")
+        click(_loc=ItemLoc.PARTY_CANCEL)
+        return True
+    return False
+
+
+def check_disconnected():
+    """
+    Check if receiving party request
+    """
+    ss = screenshot()
+    message = ss[640:1158, 1024:1860]
+    alert = extract_text_from(message).replace("\n", "")
+    print(alert)
+    if re.search("disconnected", alert):
+        print("Refuse Party")
+        click(_loc=ItemLoc.DISCONNECTED)
+        return True
+    return False
 
 
 def read_message():
@@ -318,7 +348,7 @@ def train(character: Character, map_command=Command.ARENA7):
         train_point_2()
         while not character.check_max_lvl():
             combo_evil()
-            character.check_party()
+            check_party()
         print("Train Complete: Max LvL")
         return True
     return False
@@ -345,7 +375,7 @@ def train_after_reset(character: Character):
                 pyautogui.mouseDown(x=ItemLoc.ATTACK_HAND["x"],
                                     y=ItemLoc.ATTACK_HAND["y"])
                 time.sleep(10)
-                character.check_party()
+                check_party()
             character.add_point(stat=Point.ENERGY, p=400)
             character.add_point(stat=Point.AGILITY)
 
@@ -361,5 +391,5 @@ def train_after_reset(character: Character):
         else:
             character.add_point(Point.ENERGY)
         time.sleep(2)
-        character.check_party()
+        check_party()
     return True

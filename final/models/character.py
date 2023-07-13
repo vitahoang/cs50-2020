@@ -208,21 +208,6 @@ class Character:
             return True
         return False
 
-    @staticmethod
-    def check_party():
-        """
-        Check if receiving party request
-        """
-        ss = screenshot()
-        message = ss[640:1158, 1024:1860]
-        alert = extract_text_from(message).replace("\n", "")
-        print(alert)
-        if re.search("party", alert):
-            print("Refuse Party")
-            click(_loc=ItemLoc.PARTY_CANCEL)
-            return True
-        return False
-
     def add_point(self, stat: str, p: int = None):
         """
         Add free points to the specified stat if possible, up to the
