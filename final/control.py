@@ -239,6 +239,7 @@ def solve_captcha(master=False):
         time.sleep(3)
 
         # crop and upscale the captcha
+        check_party()
         crop = screenshot(region=(780, 1070, 1320, 1570))
         captcha_scl = upscale(crop)
         captcha_obj = remove(captcha_scl)
