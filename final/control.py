@@ -229,79 +229,6 @@ def reset_wait(message):
     return False
 
 
-def solve_captcha(master=False):
-    global first_theta, last_theta
-
-    # random seed to choose which side to rotate the captcha image
-    seed = random.choice([True, False])
-
-    while not re.search("Lorencia", Character().cur_loc()[0]):
-        time.sleep(3)
-
-        # crop and upscale the captcha
-        check_party()
-        crop = screenshot(region=(780, 1070, 1320, 1570))
-        captcha_scl = upscale(crop)
-        captcha_obj = remove(captcha_scl)
-        r, theta = superm2(captcha_obj)
-
-        # cache theta for the first try
-        if not last_theta:
-            last_theta = theta
-
-        rotate_n = cal_rotate_n(theta, last_theta)
-        last_theta = theta
-
-        # from 2nd check, assign the theta after calculate the n of rotate
-        print(r, theta)
-
-        # if theta = 0 or 3.14, the captcha is at vertical symetry position
-        if 0.00 <= theta <= 0.06 or 3.08 <= theta <= 3.14 \
-                or first_theta == theta:
-            # check if captcha window is open
-            if not Item(SUBMIT_CAPTCHA).find_item():
-                if master:
-                    NPC(npc=npc_master).click_npc()
-                else:
-                    NPC(npc=npc_reset).click_npc()
-
-                # check if reset has been blocked and wait
-                if not Item(SUBMIT_CAPTCHA).find_item():
-                    if not reset_wait(read_message()):
-                        break
-                continue
-
-            # submit captcha
-            click(_loc=ItemLoc.RS_SEND)
-
-            # reset seed and theta
-            seed = random.choice([True, False])
-            first_theta = None
-            last_theta = None
-
-            time.sleep(2)
-            if not re.search('lorencia', Character().cur_loc()[0].lower()):
-                sym_image = draw(captcha_scl, r, theta)
-                save_img(image=sym_image, name="captcha", suffix="-failed",
-                         folder_path=FolderPath.SAMPLE)
-                time.sleep(3)
-                continue
-            sym_image = draw(captcha_scl, r, theta)
-            save_img(image=sym_image, name="captcha", suffix="-success",
-                     folder_path=FolderPath.SAMPLE)
-            time.sleep(3)
-            break
-        if not first_theta:
-            first_theta = theta
-        if seed:
-            click(_loc=ItemLoc.RS_LEFT, _click=rotate_n, _interval=0.3)
-        else:
-            click(_loc=ItemLoc.RS_RIGHT, _click=rotate_n, _interval=0.3)
-    time.sleep(7)
-    join_server()
-    return True
-
-
 def train_point_1():
     click(_loc=ItemLoc.MOVE_RIGHT)
     time.sleep(1)
@@ -377,12 +304,13 @@ def train_after_reset(character: Character):
                                     y=ItemLoc.ATTACK_HAND["y"])
                 time.sleep(10)
                 check_party()
-            character.add_point(stat=Point.ENERGY, p=400)
-            character.add_point(stat=Point.AGILITY)
+            character.add_point(stat=Point.ENERGY)
+            time.sleep(2)
 
     # then train to level that has efficient points
     chat(Command.ARENA7)
     train_point_1()
+    character.add_point(stat=Point.ENERGY)
     while character.energy < 2000:
         combo_evil()
         time.sleep(10)
@@ -393,4 +321,77 @@ def train_after_reset(character: Character):
             character.add_point(Point.ENERGY)
         time.sleep(2)
         check_party()
+    return True
+
+
+def solve_captcha(master=False):
+    global first_theta, last_theta
+
+    # random seed to choose which side to rotate the captcha image
+    seed = random.choice([True, False])
+
+    while not re.search("Lorencia", Character().cur_loc()[0]):
+        time.sleep(3)
+
+        # crop and upscale the captcha
+        check_party()
+        crop = screenshot(region=(780, 1070, 1320, 1570))
+        captcha_scl = upscale(crop)
+        captcha_obj = remove(captcha_scl)
+        r, theta = superm2(captcha_obj)
+
+        # cache theta for the first try
+        if not last_theta:
+            last_theta = theta
+
+        rotate_n = cal_rotate_n(theta, last_theta)
+        last_theta = theta
+
+        # from 2nd check, assign the theta after calculate the n of rotate
+        print(r, theta)
+
+        # if theta = 0 or 3.14, the captcha is at vertical symetry position
+        if 0.00 <= theta <= 0.06 or 3.08 <= theta <= 3.14 \
+                or first_theta == theta:
+            # check if captcha window is open
+            if not Item(SUBMIT_CAPTCHA).find_item():
+                if master:
+                    NPC(npc=npc_master).click_npc()
+                else:
+                    NPC(npc=npc_reset).click_npc()
+
+                # check if reset has been blocked and wait
+                if not Item(SUBMIT_CAPTCHA).find_item():
+                    if not reset_wait(read_message()):
+                        break
+                continue
+
+            # submit captcha
+            click(_loc=ItemLoc.RS_SEND)
+
+            # reset seed and theta
+            seed = random.choice([True, False])
+            first_theta = None
+            last_theta = None
+
+            time.sleep(2)
+            if not re.search('lorencia', Character().cur_loc()[0].lower()):
+                sym_image = draw(captcha_scl, r, theta)
+                save_img(image=sym_image, name="captcha", suffix="-failed",
+                         folder_path=FolderPath.SAMPLE)
+                time.sleep(3)
+                continue
+            sym_image = draw(captcha_scl, r, theta)
+            save_img(image=sym_image, name="captcha", suffix="-success",
+                     folder_path=FolderPath.SAMPLE)
+            time.sleep(3)
+            break
+        if not first_theta:
+            first_theta = theta
+        if seed:
+            click(_loc=ItemLoc.RS_LEFT, _click=rotate_n, _interval=0.3)
+        else:
+            click(_loc=ItemLoc.RS_RIGHT, _click=rotate_n, _interval=0.3)
+    time.sleep(7)
+    join_server()
     return True

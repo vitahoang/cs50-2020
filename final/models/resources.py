@@ -77,6 +77,3 @@ class ItemLoc(Resource):
     PARTY_OK = {"x": 671, "y": 544}
     DISCONNECTED = {"x": 721, "y": 543}
 
-
-a = Command()
-a.look_up_by_val("/arena11")
