@@ -1,6 +1,7 @@
-"""Provide Methods to control"""
+"""Provide functions to control the game"""
 import random
 import re
+from queue import Queue
 from subprocess import Popen, PIPE
 
 from rembg import remove
@@ -17,7 +18,7 @@ from utils import process_running, screenshot, save_img, _raise, click, \
 
 server_name: str
 sub_server_name: str
-first_theta = None
+submit: bool
 last_theta = None
 
 
@@ -79,21 +80,29 @@ def open_app():
     return False
 
 
-def check_screen(screen: Screen = None):
+def check_screen(screen_name: str = None,
+                 queue: Queue = None,
+                 event: Event = None):
     """check which screen is showed"""
-    if (screen == Screen.START or not screen) \
+    if screen_name == Screen.IN_GAME \
             and click(_loc=ItemLoc.CHAT) \
-            and Item(CHAT_SEND).click_item():
-        return Screen.IN_GAME
-    if (screen == Screen.START or not screen) and \
-            Item(START).find_item():
-        return Screen.START
-    if (screen == Screen.SERVER or not screen) and \
-            Item(VIP).find_item():
-        return Screen.SERVER
-    if (screen == Screen.CHARACTER or not screen) and \
-            Item(C_MAGIC).find_item():
-        return Screen.CHARACTER
+            and Item(CHAT_SEND).click_item(event=event):
+        if queue:
+            queue.put(screen_name)
+        return screen_name
+    if screen_name == Screen.START and Item(START).find_item(event=event):
+        if queue:
+            queue.put(screen_name)
+        return screen_name
+    if screen_name == Screen.SERVER and Item(VIP).find_item(event=event):
+        if queue:
+            queue.put(screen_name)
+        return screen_name
+    if screen_name == Screen.CHARACTER and \
+            Item(C_MAGIC).find_item(event=event):
+        if queue:
+            queue.put(screen_name)
+        return screen_name
     return False
 
 
@@ -305,7 +314,7 @@ def train_after_reset(character: Character):
                 time.sleep(10)
                 check_party()
             character.add_point(stat=Point.ENERGY)
-            time.sleep(2)
+            time.sleep(5)
 
     # then train to level that has efficient points
     chat(Command.ARENA7)
@@ -321,77 +330,108 @@ def train_after_reset(character: Character):
             character.add_point(Point.ENERGY)
         time.sleep(2)
         check_party()
+    time.sleep(3)
     return True
 
 
 def solve_captcha(master=False):
-    global first_theta, last_theta
+    global last_theta, submit
 
     # random seed to choose which side to rotate the captcha image
     seed = random.choice([True, False])
+    submit = False
 
     while not re.search("Lorencia", Character().cur_loc()[0]):
         time.sleep(3)
+        check_party()
 
         # crop and upscale the captcha
-        check_party()
         crop = screenshot(region=(780, 1070, 1320, 1570))
         captcha_scl = upscale(crop)
         captcha_obj = remove(captcha_scl)
         r, theta = superm2(captcha_obj)
-
-        # cache theta for the first try
-        if not last_theta:
-            last_theta = theta
-
-        rotate_n = cal_rotate_n(theta, last_theta)
-        last_theta = theta
-
-        # from 2nd check, assign the theta after calculate the n of rotate
         print(r, theta)
 
+        rotate_n = cal_rotate_n(theta, last_theta)
+
+        # if theta goes over 0 or 3.14, the symetry line of the captcha
+        # image is aligned slightly deviated from the vertical line. So we
+        # need to rotate it back 1 step then submit.
+        if last_theta and (
+                (3.08 > last_theta > 2.8 and 0.06 < theta < 0.2)
+                or (0.06 < last_theta < 0.2 and 3.08 > theta > 2.8)
+        ):
+            if seed:
+                rotate_captcha(rotate_n, seed=False)
+            else:
+                rotate_captcha(rotate_n, seed=True)
+            submit = True
+
         # if theta = 0 or 3.14, the captcha is at vertical symetry position
-        if 0.00 <= theta <= 0.06 or 3.08 <= theta <= 3.14 \
-                or first_theta == theta:
-            # check if captcha window is open
-            if not Item(SUBMIT_CAPTCHA).find_item():
-                if master:
-                    NPC(npc=npc_master).click_npc()
-                else:
-                    NPC(npc=npc_reset).click_npc()
+        if 0.00 <= theta <= 0.06 or 3.08 <= theta <= 3.14:
+            submit = True
 
-                # check if reset has been blocked and wait
-                if not Item(SUBMIT_CAPTCHA).find_item():
-                    if not reset_wait(read_message()):
-                        break
-                continue
-
-            # submit captcha
-            click(_loc=ItemLoc.RS_SEND)
-
-            # reset seed and theta
+        if submit:
+            # reset seed, last theta, and submit
             seed = random.choice([True, False])
-            first_theta = None
             last_theta = None
+            submit = False
 
-            time.sleep(2)
-            if not re.search('lorencia', Character().cur_loc()[0].lower()):
-                sym_image = draw(captcha_scl, r, theta)
-                save_img(image=sym_image, name="captcha", suffix="-failed",
-                         folder_path=FolderPath.SAMPLE)
-                time.sleep(3)
-                continue
-            sym_image = draw(captcha_scl, r, theta)
-            save_img(image=sym_image, name="captcha", suffix="-success",
-                     folder_path=FolderPath.SAMPLE)
+            if not submit_captcha(master):
+                break
             time.sleep(3)
-            break
-        if not first_theta:
-            first_theta = theta
+            if save_captcha(captcha_scl, r, theta):
+                break
+            continue
+
+        # cache the theta
+        last_theta = theta
+
+        # click right or left rotate base on random seed
+        rotate_captcha(rotate_n, seed)
+
+    time.sleep(3)
+    join_server()
+    return True
+
+
+def submit_captcha(master=False):
+    """Search for the submit CTA and submit captcha"""
+    try:
+        while not Item(SUBMIT_CAPTCHA).click_item():
+            reset_wait(read_message())
+            if master:
+                NPC(npc=npc_master).click_npc()
+            else:
+                NPC(npc=npc_reset).click_npc()
+            if Character().cur_loc()["map_name"] != "arena":
+                return False
+    except Exception as e:
+        _raise(e)
+
+
+def save_captcha(captcha_scl, r, theta):
+    """Save captcha based on result"""
+    if not re.search('lorencia', Character().cur_loc()[0].lower()):
+        sym_image = draw(captcha_scl, r, theta)
+        save_img(image=sym_image, name="captcha", suffix="-failed",
+                 folder_path=FolderPath.SAMPLE)
+        time.sleep(3)
+        return False
+    sym_image = draw(captcha_scl, r, theta)
+    save_img(image=sym_image, name="captcha", suffix="-success",
+             folder_path=FolderPath.SAMPLE)
+    time.sleep(3)
+    return True
+
+
+def rotate_captcha(rotate_n: int, seed: bool):
+    """Rotate the captcha to right angle or left angle base on random seed"""
+    try:
         if seed:
             click(_loc=ItemLoc.RS_LEFT, _click=rotate_n, _interval=0.3)
         else:
             click(_loc=ItemLoc.RS_RIGHT, _click=rotate_n, _interval=0.3)
-    time.sleep(7)
-    join_server()
-    return True
+        return True
+    except Exception as e:
+        _raise(e)

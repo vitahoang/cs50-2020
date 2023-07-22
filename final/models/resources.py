@@ -5,14 +5,16 @@ user_name = "/Users/" + getpass.getuser()
 
 
 class Resource:
-    def look_up_by_val(self, val: str):
+    def look_up_by_val(self, val: str = None):
         var = {}
         for i in dir(self):
             if re.search("__", i):
                 break
             var[str(eval("self." + i))] = i
         try:
-            return var[val]
+            if val:
+                return var[val]
+            return var
         except KeyError:
             return False
 

@@ -1,4 +1,5 @@
 import logging
+from threading import Thread
 
 from control import *
 from models.character import Character
@@ -28,19 +29,37 @@ def main():
             time.sleep(5)
 
 
+def check_screen_thread():
+    global screen
+    q = Queue(maxsize=1)
+    e = Event()
+    threads = []
+    for screen_name in list(Screen().look_up_by_val().keys()):
+        print(f"Start {screen_name} thread")
+        threads.append(Thread(target=check_screen, args=(screen_name, q, e)))
+    for thread in threads:
+        thread.start()
+    while not q.full():
+        time.sleep(1)
+        print("Screen checking...")
+    screen = q.get()
+    print(f"Screen is on {screen}")
+    return screen
+
+
 def run():
     global screen, max_reset
 
     # check which screen is showing
     check_party()
-    screen = check_screen()
+    check_screen_thread()
     # if failed, try to open the app
     if not screen or check_disconnected():
         if open_app() is False:
             logging.error("Open App Failed")
             return False
         time.sleep(5)
-        screen = check_screen(screen=Screen.START)
+        screen = check_screen(screen_name=Screen.START)
 
     # else, login
     match screen:

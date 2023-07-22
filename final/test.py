@@ -1,7 +1,5 @@
-from control import check_disconnected, train_after_reset
-from models.character import Character
+from control import check_screen
+from models.resources import Screen
 
-check_disconnected()
-character = Character()
-train_after_reset(character)
+check_screen(Screen.CHARACTER)
 

@@ -1,4 +1,5 @@
 import time
+from threading import Event
 
 import cv2
 import pyautogui
@@ -101,7 +102,8 @@ class Item:
         self.region: tuple = item["region"]
 
     def find_item(self, item_path: str = None, region: tuple = None,
-                  preview=False, confidence=0.7, timeout=12):
+                  preview=False, confidence=0.7, timeout=12,
+                  event: Event = None):
         """find item given an image then return its central location on
         screen"""
         path = FolderPath.ITEM + \
@@ -125,19 +127,26 @@ class Item:
                 loc_x += target_region[2]
                 loc_y += target_region[0]
                 print(loc_x / 2, loc_y / 2)
+                if event:
+                    event.set()
                 return {"x": loc_x / 2, "y": loc_y / 2}
+            if event and event.is_set():
+                break
         print("Item not found")
         return False
 
-    def click_item(self, find=True, pick_up=False):
+    def click_item(self, find=True, pick_up=False, event: Event = None):
         try:
             if not find:
                 click(_loc=self.loc)
                 if pick_up:
                     click(_loc=self.loc)
                 return self.loc
-            loc = self.find_item()
-            click(_loc=loc)
-            return loc
+            loc = self.find_item(event=event)
+            if loc:
+                click(_loc=loc)
+                self.loc = loc
+                return loc
+            return False
         except Exception as e:
             _raise(e)

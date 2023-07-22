@@ -150,9 +150,10 @@ def chat(*args: str):
         _raise(e)
 
 
-def cal_rotate_n(new_theta: int, last_theta: int):
+def cal_rotate_n(new_theta: int, last_theta: int = None):
+    """Calculate the number of clicks to the rotate button"""
     change = 0.3
-    if new_theta == last_theta:
+    if not last_theta:
         return 1
     if new_theta - last_theta > 0:
         rotate_n = int((3.14 - new_theta) // change - 1)

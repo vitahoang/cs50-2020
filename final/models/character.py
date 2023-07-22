@@ -192,7 +192,7 @@ class Character:
             return info
         except Exception as e:
             _raise(e)
-        return None
+            return None
 
     @staticmethod
     def check_max_lvl():
