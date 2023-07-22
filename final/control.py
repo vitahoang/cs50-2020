@@ -402,10 +402,13 @@ def submit_captcha(master=False):
             reset_wait(read_message())
             if master:
                 NPC(npc=npc_master).click_npc()
+                if Character().cur_loc()["map_name"] != "noria":
+                    return False
+
             else:
                 NPC(npc=npc_reset).click_npc()
-            if Character().cur_loc()["map_name"] != "arena":
-                return False
+                if Character().cur_loc()["map_name"] != "arena":
+                    return False
     except Exception as e:
         _raise(e)
 
