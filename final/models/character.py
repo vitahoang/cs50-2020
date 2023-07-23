@@ -94,12 +94,13 @@ class Character:
             click(_loc=ItemLoc.STAT_MENU)
         return False
 
-    def cur_stat(self):
+    def cur_stat(self, menu=True):
         """
         Update the character's stats (strength, agility, life, and energy)
         based on a screenshot of the game's status menu.
         """
-        click(_loc=ItemLoc.STAT_MENU)
+        if menu:
+            click(_loc=ItemLoc.STAT_MENU)
         if not self.cur_lvl(menu=False):
             return False
         ss = screenshot()
@@ -115,7 +116,8 @@ class Character:
         print(f"Stat info: {info}")
         if len(info) < 4:
             print(f"Stat [info] only has {len(info)} element(s)")
-            click(_loc=ItemLoc.STAT_MENU)
+            if menu:
+                click(_loc=ItemLoc.STAT_MENU)
             return False
         try:
             stat = {
@@ -133,10 +135,12 @@ class Character:
                                stat["agility"] + \
                                stat["life"] + \
                                stat["energy"]
-            click(_loc=ItemLoc.STAT_MENU)
+            if menu:
+                click(_loc=ItemLoc.STAT_MENU)
             return stat
         except Exception as e:
-            click(_loc=ItemLoc.STAT_MENU)
+            if menu:
+                click(_loc=ItemLoc.STAT_MENU)
             _raise(e)
         return False
 
@@ -252,17 +256,22 @@ class Character:
         Add all available free points to the character's stats,
         prioritizing agility, energy, strength, and life in that order.
         """
+        click(_loc=ItemLoc.STAT_MENU)
         while not self.check_max_reset() and self.free_point != 0:
             if self.add_point(Point.ENERGY):
-                self.cur_stat()
+                time.sleep(2)
+                self.cur_stat(menu=False)
                 continue
             if self.add_point(Point.AGILITY):
-                self.cur_stat()
+                time.sleep(2)
+                self.cur_stat(menu=False)
                 continue
             if self.add_point(Point.LIFE):
-                self.cur_stat()
-                break
-            if self.add_point(Point.STRENGTH):
-                self.cur_stat()
+                time.sleep(2)
+                self.cur_stat(menu=False)
                 continue
+            if self.add_point(Point.STRENGTH):
+                time.sleep(2)
+                self.cur_stat(menu=False)
+        click(_loc=ItemLoc.STAT_MENU)
         return True

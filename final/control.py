@@ -316,22 +316,25 @@ def train_after_reset(character: Character):
         time.sleep(3)
         if character.cur_loc()[0].lower() == "arena":
             train_point_2()
-            while 1 <= character.cur_lvl()["lvl"] <= 50:
+            click(_loc=ItemLoc.STAT_MENU)
+            while character.cur_lvl(menu=False)["lvl"] <= 50:
                 pyautogui.mouseDown(x=ItemLoc.ATTACK_HAND["x"],
                                     y=ItemLoc.ATTACK_HAND["y"])
                 time.sleep(10)
                 check_party()
             character.add_point(stat=Point.ENERGY)
+            click(_loc=ItemLoc.STAT_MENU)
             time.sleep(5)
 
     # then train to level that has efficient points
     chat(Command.ARENA7)
     train_point_1()
     character.add_point(stat=Point.ENERGY)
+    click(_loc=ItemLoc.STAT_MENU)
     while character.energy < 2000:
         combo_evil()
         time.sleep(10)
-        character.cur_stat()
+        character.cur_stat(menu=False)
         if character.agility < 3000:
             character.add_point(Point.AGILITY)
         else:
