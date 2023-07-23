@@ -84,20 +84,28 @@ def check_screen(screen_name: str = None,
                  queue: Queue = None,
                  event: Event = None):
     """check which screen is showed"""
+
+    # check in_game screen
     if screen_name == Screen.IN_GAME \
             and click(_loc=ItemLoc.CHAT) \
             and Item(CHAT_SEND).click_item(event=event):
         if queue:
             queue.put(screen_name)
         return screen_name
+
+    # check start screen
     if screen_name == Screen.START and Item(START).find_item(event=event):
         if queue:
             queue.put(screen_name)
         return screen_name
+
+    # check server screen
     if screen_name == Screen.SERVER and Item(VIP).find_item(event=event):
         if queue:
             queue.put(screen_name)
         return screen_name
+
+    # check character screen
     if screen_name == Screen.CHARACTER and \
             Item(C_MAGIC).find_item(event=event):
         if queue:
@@ -380,7 +388,10 @@ def solve_captcha(master=False):
             if not submit_captcha(master):
                 break
             time.sleep(3)
-            if save_captcha(captcha_scl, r, theta):
+
+            result = check_captcha_result()
+            save_captcha(captcha_scl, r, theta, result=result)
+            if result:
                 break
             continue
 
@@ -392,6 +403,13 @@ def solve_captcha(master=False):
 
     time.sleep(3)
     join_server()
+    return True
+
+
+def check_captcha_result():
+    """Check captcha result"""
+    if not re.search('lorencia', Character().cur_loc()[0].lower()):
+        return False
     return True
 
 
@@ -413,16 +431,19 @@ def submit_captcha(master=False):
         _raise(e)
 
 
-def save_captcha(captcha_scl, r, theta):
+def save_captcha(captcha_scl, r, theta, result: bool, symmetry: bool = None):
     """Save captcha based on result"""
-    if not re.search('lorencia', Character().cur_loc()[0].lower()):
+    sym_image: int
+    suffix = "-success"
+
+    if symmetry:
         sym_image = draw(captcha_scl, r, theta)
-        save_img(image=sym_image, name="captcha", suffix="-failed",
-                 folder_path=FolderPath.SAMPLE)
-        time.sleep(3)
-        return False
-    sym_image = draw(captcha_scl, r, theta)
-    save_img(image=sym_image, name="captcha", suffix="-success",
+    else:
+        sym_image = captcha_scl
+    if not result:
+        suffix = "-failed"
+
+    save_img(image=sym_image, name="captcha", suffix=suffix,
              folder_path=FolderPath.SAMPLE)
     time.sleep(3)
     return True

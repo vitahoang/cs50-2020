@@ -1,5 +1,3 @@
-from control import check_screen
-from models.resources import Screen
+from control import solve_captcha
 
-check_screen(Screen.CHARACTER)
-
+solve_captcha()
