@@ -62,6 +62,7 @@ class Character:
         """
 
         # If menu is True, click on the STAT_MENU item
+        print(">>>Func: cur_lvl")
         if menu:
             click(_loc=ItemLoc.STAT_MENU)
         # Take a screenshot and extract the level information
@@ -99,6 +100,7 @@ class Character:
         Update the character's stats (strength, agility, life, and energy)
         based on a screenshot of the game's status menu.
         """
+        print(">>>Func: cur_stat")
         if menu:
             click(_loc=ItemLoc.STAT_MENU)
         if not self.cur_lvl(menu=False):
@@ -109,7 +111,6 @@ class Character:
             .replace(" ", "") \
             .replace("—", "") \
             .replace("&", "")
-        print(info)
         _regex = re.compile(r'^[a-zA-Z]{1,8}:(\d{1,5})$', re.MULTILINE)
         info = re.findall(_regex, info)
         info = [int(i) for i in info]
@@ -149,6 +150,7 @@ class Character:
         Update the character's reset count based on the current stats and
         free points.
         """
+        print(">>>Func: cur_reset")
         try:
             self.cur_stat()
             if not self.added_point:
@@ -241,6 +243,7 @@ class Character:
         Check if the character has reached the maximum reset count based
         on the current level and stats.
         """
+        print(">>>Func: cur_reset")
         self.cur_reset()
         try:
             if self.lvl < 600:
@@ -256,22 +259,21 @@ class Character:
         Add all available free points to the character's stats,
         prioritizing agility, energy, strength, and life in that order.
         """
-        click(_loc=ItemLoc.STAT_MENU)
+        print(">>>Func: add_all_point")
         while not self.check_max_reset() and self.free_point != 0:
             if self.add_point(Point.ENERGY):
                 time.sleep(2)
-                self.cur_stat(menu=False)
+                self.cur_stat()
                 continue
             if self.add_point(Point.AGILITY):
                 time.sleep(2)
-                self.cur_stat(menu=False)
+                self.cur_stat()
                 continue
             if self.add_point(Point.LIFE):
                 time.sleep(2)
-                self.cur_stat(menu=False)
+                self.cur_stat()
                 continue
             if self.add_point(Point.STRENGTH):
                 time.sleep(2)
-                self.cur_stat(menu=False)
-        click(_loc=ItemLoc.STAT_MENU)
+                self.cur_stat()
         return True

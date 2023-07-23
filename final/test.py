@@ -1,3 +1,4 @@
-from control import solve_captcha
+from models.character import Character
 
-solve_captcha()
+character = Character()
+character.check_max_reset()

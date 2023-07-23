@@ -4,6 +4,8 @@ import re
 from queue import Queue
 from subprocess import Popen, PIPE
 
+import numpy as np
+from numpy import ndarray
 from rembg import remove
 
 from models.character import Character
@@ -283,6 +285,7 @@ def combo_evil():
 
 
 def train(character: Character, map_command=Command.ARENA7):
+    print(">>>Func: train")
     if character.lvl == 600:
         print("Train Complete: Max LvL")
         return True
@@ -300,6 +303,7 @@ def train(character: Character, map_command=Command.ARENA7):
 
 
 def train_after_reset(character: Character):
+    print(">>>Func: train_after_reset")
     if character.cur_reset() > 0 or character.energy > 2000:
         return False
 
@@ -436,13 +440,13 @@ def submit_captcha(master=False):
 
 def save_captcha(captcha_scl, r, theta, result: bool, symmetry: bool = None):
     """Save captcha based on result"""
-    sym_image: int
+    sym_image: ndarray
     suffix = "-success"
 
     if symmetry:
         sym_image = draw(captcha_scl, r, theta)
     else:
-        sym_image = captcha_scl
+        sym_image = np.copy(captcha_scl)
     if not result:
         suffix = "-failed"
 
