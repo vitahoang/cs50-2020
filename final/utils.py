@@ -162,4 +162,3 @@ def cal_rotate_n(new_theta: int, last_theta: int = None):
         rotate_n = int(new_theta // change)
         return 1 if rotate_n < 1 else rotate_n
 
-

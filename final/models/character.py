@@ -50,10 +50,12 @@ class Character:
     energy: int
 
     def __init__(self):
+        self.max_reset = False
         self.class_name = ""
         self.character_name = ""
         self.current_loc = {}
         self.added_point = 0
+        self.lvl = 0
 
     def cur_lvl(self, menu=True):
         """
@@ -161,6 +163,7 @@ class Character:
             if self.total_point == (10193 + self.INIT_POINTS):
                 self.reset = 1
             print(f"Reset: {self.reset}; Free Points: {self.free_point}")
+            self.check_max_reset()
             return self.reset
         except Exception as e:
             _raise(e)
@@ -208,7 +211,6 @@ class Character:
         ss = screenshot()
         message = ss[1500:1645, 800:1495]
         alert = extract_text_from(message).replace("\n", "")
-        print(alert)
         if re.search("maximum level", alert):
             print("Train Complete: Max LvL")
             return True
@@ -219,6 +221,7 @@ class Character:
         Add free points to the specified stat if possible, up to the
         maximum allowed points.
         """
+        print(f"Func: add_point {stat}")
         if self.free_point == 0:
             print("No free point to add")
             return False
@@ -243,13 +246,13 @@ class Character:
         Check if the character has reached the maximum reset count based
         on the current level and stats.
         """
-        print(">>>Func: cur_reset")
-        self.cur_reset()
+        print(">>>Func: check_max_reset")
         try:
             if self.lvl < 600:
                 return False
             if self.added_point == self.MAX_POINTS * 4:
                 print("Max reset!")
+                self.max_reset = True
                 return True
         except Exception as e:
             _raise(e)
@@ -261,19 +264,20 @@ class Character:
         """
         print(">>>Func: add_all_point")
         while not self.check_max_reset() and self.free_point != 0:
-            if self.add_point(Point.ENERGY):
-                time.sleep(2)
-                self.cur_stat()
-                continue
+            self.cur_stat()
             if self.add_point(Point.AGILITY):
-                time.sleep(2)
-                self.cur_stat()
+                time.sleep(4)
+                self.cur_reset()
+                continue
+            if self.add_point(Point.ENERGY):
+                time.sleep(4)
+                self.cur_reset()
                 continue
             if self.add_point(Point.LIFE):
-                time.sleep(2)
-                self.cur_stat()
+                time.sleep(4)
+                self.cur_reset()
                 continue
             if self.add_point(Point.STRENGTH):
-                time.sleep(2)
-                self.cur_stat()
+                time.sleep(4)
+                self.cur_reset()
         return True

@@ -1,6 +1,7 @@
 """Provide functions to control the game"""
 import random
 import re
+import time
 from queue import Queue
 from subprocess import Popen, PIPE
 
@@ -35,6 +36,7 @@ def open_app():
          Raises:
             None
     """
+    print("Open App")
     p = Popen(['osascript', '-'], stdin=PIPE, stdout=PIPE, stderr=PIPE,
               universal_newlines=True)
     open_scpt = '''
@@ -191,7 +193,6 @@ def check_party():
     ss = screenshot()
     message = ss[640:1158, 1024:1860]
     alert = extract_text_from(message).replace("\n", "")
-    print(alert)
     if re.search("party", alert):
         print("Refuse Party")
         click(_loc=ItemLoc.PARTY_CANCEL)
@@ -206,7 +207,6 @@ def check_disconnected():
     ss = screenshot()
     message = ss[640:1158, 1024:1860]
     alert = extract_text_from(message).replace("\n", "")
-    print(alert)
     if re.search("disconnected", alert):
         print("Refuse Party")
         click(_loc=ItemLoc.DISCONNECTED)
@@ -248,22 +248,25 @@ def reset_wait(message):
     return False
 
 
-def train_point_1():
-    click(_loc=ItemLoc.MOVE_RIGHT)
-    time.sleep(1)
-    click(_loc=ItemLoc.MOVE_RIGHT)
-    time.sleep(1)
-    click(_loc=ItemLoc.MOVE_RIGHT)
-    time.sleep(1)
-
-
-def train_point_2():
-    click(_loc=ItemLoc.MOVE_LEFT)
-    time.sleep(1)
-    click(_loc=ItemLoc.MOVE_LEFT)
-    time.sleep(1)
-    click(_loc=ItemLoc.MOVE_LEFT)
-    time.sleep(1)
+def train_point(point=1):
+    if point == 1:
+        click(_loc=ItemLoc.MOVE_RIGHT)
+        time.sleep(1)
+        click(_loc=ItemLoc.MOVE_RIGHT)
+        time.sleep(1)
+        click(_loc=ItemLoc.MOVE_RIGHT)
+        time.sleep(1)
+    if point == 2:
+        click(_loc=ItemLoc.MOVE_LEFT)
+        time.sleep(1)
+        click(_loc=ItemLoc.MOVE_LEFT)
+        time.sleep(1)
+        click(_loc=ItemLoc.MOVE_LEFT)
+        time.sleep(1)
+    if point == 3:
+        click(_loc=ItemLoc.MOVE_DOWN, _interval=2, _click=5)
+        click(_loc=ItemLoc.MOVE_LEFT, _interval=2, _click=2)
+        time.sleep(1)
 
 
 def combo():
@@ -293,12 +296,13 @@ def train(character: Character, map_command=Command.ARENA7):
     map_name = " ".join(re.findall("[a-zA-Z]+", map_command))
     time.sleep(3)
     if character.cur_loc()[0].lower() == map_name:
-        train_point_2()
+        train_point(point=2)
         while not character.check_max_lvl():
             combo_evil()
             check_party()
         print("Train Complete: Max LvL")
         return True
+    print("!!! Train Fail")
     return False
 
 
@@ -315,31 +319,40 @@ def train_after_reset(character: Character):
     click(_loc=ItemLoc.INVENTORY)
 
     # first train to lv 50
-    if character.lvl <= 50:
+    if character.lvl <= 30:
         chat(Command.ARENA11)
         time.sleep(3)
         if character.cur_loc()[0].lower() == "arena":
-            train_point_2()
+            train_point(point=2)
             click(_loc=ItemLoc.STAT_MENU)
-            while character.cur_lvl(menu=False)["lvl"] <= 50:
+            cur_lvl = character.lvl
+            while character.cur_lvl(menu=False)["lvl"] <= 30:
                 pyautogui.mouseDown(x=ItemLoc.ATTACK_HAND["x"],
                                     y=ItemLoc.ATTACK_HAND["y"])
                 time.sleep(10)
                 check_party()
+                if cur_lvl == character.cur_lvl(menu=False)["lvl"]:
+                    chat(Command.ARENA11)
+                    train_point(point=2)
             character.add_point(stat=Point.ENERGY)
             click(_loc=ItemLoc.STAT_MENU)
             time.sleep(5)
 
     # then train to level that has efficient points
     chat(Command.ARENA7)
-    train_point_1()
+    train_point()
+    character.cur_stat()
     character.add_point(stat=Point.ENERGY)
+    time.sleep(3)
     click(_loc=ItemLoc.STAT_MENU)
     while character.energy < 2000:
         combo_evil()
         time.sleep(10)
-        character.cur_stat(menu=False)
-        if character.agility < 3000:
+        while not character.cur_stat(menu=False):
+            check_party()
+            check_disconnected()
+            click(_loc=ItemLoc.STAT_MENU)
+        if character.agility < 2000:
             character.add_point(Point.AGILITY)
         else:
             character.add_point(Point.ENERGY)
@@ -349,14 +362,18 @@ def train_after_reset(character: Character):
     return True
 
 
-def solve_captcha(master=False):
+def solve_captcha(master=False, server=VIP5):
     global last_theta, submit
 
     # random seed to choose which side to rotate the captcha image
     seed = random.choice([True, False])
     submit = False
+    if master:
+        NPC(npc=npc_master).click_npc()
+    else:
+        NPC(npc=npc_reset).click_npc()
 
-    while not re.search("Lorencia", Character().cur_loc()[0]):
+    while Item(SUBMIT_CAPTCHA).find_item(timeout=3):
         time.sleep(3)
         check_party()
 
@@ -392,11 +409,7 @@ def solve_captcha(master=False):
             last_theta = None
             submit = False
 
-            if not submit_captcha(master):
-                break
-            time.sleep(3)
-
-            result = check_captcha_result()
+            result = submit_captcha()
             save_captcha(captcha_scl, r, theta, result=result)
             if result:
                 break
@@ -408,32 +421,22 @@ def solve_captcha(master=False):
         # click right or left rotate base on random seed
         rotate_captcha(rotate_n, seed)
 
-    time.sleep(3)
-    join_server()
+    join_server(server)
     return True
 
 
-def check_captcha_result():
-    """Check captcha result"""
-    if not re.search('lorencia', Character().cur_loc()[0].lower()):
-        return False
-    return True
-
-
-def submit_captcha(master=False):
+def submit_captcha():
     """Search for the submit CTA and submit captcha"""
     try:
-        while not Item(SUBMIT_CAPTCHA).click_item():
-            reset_wait(read_message())
-            if master:
-                NPC(npc=npc_master).click_npc()
-                if Character().cur_loc()["map_name"] != "noria":
-                    return False
-
-            else:
-                NPC(npc=npc_reset).click_npc()
-                if Character().cur_loc()["map_name"] != "arena":
-                    return False
+        check_party()
+        check_disconnected()
+        if Item(SUBMIT_CAPTCHA).click_item():
+            time.sleep(2)
+            if Item(SUBMIT_CAPTCHA).find_item(timeout=4):
+                reset_wait(read_message())
+                return False
+            return True
+        return False
     except Exception as e:
         _raise(e)
 
