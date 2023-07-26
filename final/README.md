@@ -70,9 +70,7 @@ $(poetry env list --full-path | \
 
 #### Install tesseract
 
--
-
-readmore: https://www.oreilly.com/library/view/building-computer-vision/9781838644673/95de5b35-436b-4668-8ca2-44970a6e2924.xhtml
+- Readmore: https://www.oreilly.com/library/view/building-computer-vision/9781838644673/95de5b35-436b-4668-8ca2-44970a6e2924.xhtml
 
 - Then you need to change location of the tesseract model in ```text.py```. You should find your model located in
   ```/opt/homebrew/Cellar/tesseract/...```

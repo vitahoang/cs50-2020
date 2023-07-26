@@ -3,7 +3,7 @@ import time
 
 from models.resources import Point, ItemLoc
 from models.text import extract_text_from
-from utils import screenshot, _raise, click, chat
+from utils import screenshot, _raise, click, chat, show_img
 
 
 class Character:
@@ -77,6 +77,9 @@ class Character:
         if len(info) < 2:
             print("LvL [info] has less than 2 elements")
             return False
+        if len(info) > 4:
+            print("LvL [info] has more than 4 elements")
+
         # Try to extract the level and free point information
         try:
             self.lvl = int(info[1])
@@ -108,7 +111,7 @@ class Character:
         if not self.cur_lvl(menu=False):
             return False
         ss = screenshot()
-        stat_img = ss[550:1290, 1430:1950]
+        stat_img = ss[550:1290, 1430:1800]
         info = extract_text_from(stat_img) \
             .replace(" ", "") \
             .replace("—", "") \
