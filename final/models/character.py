@@ -263,8 +263,8 @@ class Character:
         prioritizing agility, energy, strength, and life in that order.
         """
         print(">>>Func: add_all_point")
+        self.cur_stat()
         while not self.check_max_reset() and self.free_point != 0:
-            self.cur_stat()
             if self.add_point(Point.AGILITY):
                 time.sleep(4)
                 self.cur_reset()
