@@ -4,7 +4,7 @@ import pytesseract
 
 # Mention the installed location of Tesseract-OCR in your system
 pytesseract.pytesseract.tesseract_cmd = \
-    "/opt/homebrew/Cellar/tesseract/5.3.1_1/bin/tesseract"
+    "/opt/homebrew/Cellar/tesseract/5.3.2/bin/tesseract"
 
 
 def extract_text_from(img, save=False):
